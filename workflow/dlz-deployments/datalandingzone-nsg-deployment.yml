@@ -1,0 +1,29 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - tfcode/datalandingzone/nsg/*
+    - workflow/datalandingzone-nsg-deployment.yml
+
+extends:
+  template: ./templates/pipeline/terraform.yaml
+  parameters:
+    environments:
+      - name: dev
+        workingDir: "$(System.DefaultWorkingDirectory)/tfcode/datalandingzone/nsg/"
+        paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/datalandingzone/params/"
+        serviceConnectionName: 'SBX-Terraform'
+        tfStateRGName: 'rg-sbx-hp-terraform'
+        tfStateStorageAccountName: 'stsbxhptfstate'
+        tfStateContainerName: 'tfstate'
+        tfStateKeyName: 'dev-datalandingzone-nsg'
+      - name: npd
+        workingDir: "$(System.DefaultWorkingDirectory)/tfcode/datalandingzone/nsg/"
+        paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/datalandingzone/params/"
+        serviceConnectionName: 'NPD-LH-Terraform'
+        tfStateRGName: 'rg-cus-npd-dpo-terraform'
+        tfStateStorageAccountName: 'stcusnpddpotfstate'
+        tfStateContainerName: 'tfstate'
+        tfStateKeyName: 'datalandingzone-nsg'
