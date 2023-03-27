@@ -6,7 +6,7 @@ extends:
         operation: 'destroy'
         workingDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair/"
         paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair/params/"
-        serviceConnectionName: 'sc-lothslair-terraform'
+        serviceConnectionName: 'LothLair-IaC-Terraform'
         tfStateRGName: 'rg-terraform'
         tfStateStorageAccountName: 'sttfdata13669'
         tfStateContainerName: 'tfstate'

@@ -14,7 +14,7 @@ extends:
       - name: dev
         workingDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair-network/"
         paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair-network/params/"
-        serviceConnectionName: 'sc-lothslair-terraform'
+        serviceConnectionName: 'LothLair-IaC-Terraform'
         tfStateRGName: 'rg-terraform'
         tfStateStorageAccountName: 'sttfdata13669'
         tfStateContainerName: 'tfstate'
