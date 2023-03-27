@@ -1,6 +1,6 @@
 # Create a Resource Group
 resource "azurerm_resource_group" "networking_rg" {
-  name     = "rg-${var.region}-${var.environment}-${var.name}"
+  name     = "rg-${var.azureRegion}-${var.environment}-${var.name}"
   location = var.location
   tags = {
     environment = var.environment
@@ -9,7 +9,7 @@ resource "azurerm_resource_group" "networking_rg" {
 
 # Create the VNET
 resource "azurerm_virtual_network" "vnet" {
-  name                = "vnet-${var.region}-${var.environment}-${var.name}"
+  name                = "vnet-${var.azureRegion}-${var.environment}-${var.name}"
   address_space       = [var.vnet_cidr]
   location              = azurerm_resource_group.networking_rg.location
   resource_group_name   = azurerm_resource_group.networking_rg.name
