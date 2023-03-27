@@ -1,3 +1,8 @@
+provider "azurerm" {
+
+  features {}
+}
+
 # Create a Resource Group
 resource "azurerm_resource_group" "networking_rg" {
   name     = "rg-${var.azureRegion}-${var.environment}-${var.name}"
