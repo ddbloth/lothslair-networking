@@ -21,7 +21,7 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 # Create a Gateway Subnet
-resource "azurerm_subnet" "gateway-subnet" {
+resource "azurerm_subnet" "gateway_subnet" {
   name                 = "GatewaySubnet" # do not rename
   address_prefixes     = [var.subnet_cidr]
   virtual_network_name = azurerm_virtual_network.vnet.name
@@ -58,11 +58,43 @@ resource "azurerm_role_assignment" "kv_admin_rbac" {
 
 
 # Create a Secret for the VPN Root certificate
-resource "azurerm_key_vault_secret" "vpn-root-certificate" {
+resource "azurerm_key_vault_secret" "vpn_root_certificate" {
   depends_on=[ azurerm_role_assignment.kv_spn_rbac ]
   name = "vpn-root-certificate"
   value = filebase64(var.certificate-name)
   key_vault_id = azurerm_key_vault.kv_lothslair.id
+}
+
+# Create Public IP
+resource "azurerm_public_ip" "gateway_ip" {
+  name = "ip-${var.location}-${var.environment}-${var.name}"
+  location = azurerm_resource_group.networking_rg.location
+  resource_group_name = azurerm_resource_group.networking_rg.name
+  allocation_method = "Dynamic"
+}
+
+# Create VPN Gateway
+resource "azurerm_virtual_network_gateway" "vpn_gateway" {
+  name = "vpn-gw-${var.location}-${var.environment}-${var.name}"
+  location = azurerm_resource_group.networking_rg.location
+  resource_group_name = azurerm_resource_group.networking_rg.name
+  type = "Vpn"
+  vpn_type = "RouteBased"
+  active_active = false
+  enable_bgp = false
+  sku = "Basic"
+  ip_configuration {
+    public_ip_address_id = azurerm_public_ip.gateway_ip.id
+    private_ip_address_allocation = "Dynamic"
+    subnet_id = azurerm_subnet.gateway_subnet.id
+  }
+  vpn_client_configuration {
+    address_space = ["10.2.0.0/24"]
+    root_certificate {
+      name = "VPNROOT"
+      public_cert_data = azurerm_key_vault_secret.vpn_root_certificate.value
+    }
+  }
 }
 
 
