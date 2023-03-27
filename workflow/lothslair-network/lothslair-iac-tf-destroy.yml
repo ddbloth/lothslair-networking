@@ -1,0 +1,14 @@
+extends:
+  template: ../templates/pipeline/terraform_destroy.yaml
+  parameters:
+    environments:
+      - name: dev
+        operation: 'destroy'
+        workingDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair/"
+        paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair/params/"
+        serviceConnectionName: 'sc-lothslair-terraform'
+        tfStateRGName: 'rg-terraform'
+        tfStateStorageAccountName: 'sttfdata13669'
+        tfStateContainerName: 'tfstate'
+        tfStateKeyName: 'dev-network'
+
