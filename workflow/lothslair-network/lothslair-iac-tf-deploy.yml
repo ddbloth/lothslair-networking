@@ -1,0 +1,21 @@
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    include:
+    - tfcode/lothslair-network/*
+    - workflow/lothslair-network/lothslair-iac-tf-deploy.yml
+
+extends:
+  template: ../templates/pipeline/terraform.yaml
+  parameters:
+    environments:
+      - name: dev
+        workingDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair-network/"
+        paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair-network/params/"
+        serviceConnectionName: 'sc-lothslair-terraform'
+        tfStateRGName: 'rg-terraform'
+        tfStateStorageAccountName: 'sttfdata13669'
+        tfStateContainerName: 'tfstate'
+        tfStateKeyName: 'dev-network'
