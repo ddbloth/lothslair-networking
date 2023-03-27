@@ -9,3 +9,7 @@ Goals:
 Create a private network configuration in Azure
 Allow connectivity to it
 Allow for implemenation fo Private Endpoints / Connections
+
+Some Notes
+Before running hte self signed cert script, you may need to do the following:
+ Set-ExecutionPolicy -ExecutionPolicy Bypass

@@ -5,9 +5,6 @@ provider "azurerm" {
 
 locals {
   tags = {
-    "Business Unit"    = "Application"
-    DataClassification = "Cost Center"
-    MaintenanceWindow  = "Owner"
     Owner              = "Loth's Lair"
     Project            = "Loths Lair"
     Environment        = var.environment

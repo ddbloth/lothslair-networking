@@ -34,5 +34,11 @@ variable "network_rg_name" {
   description = "The subnet CIDR to use"
   type        = string 
   default     = "rg-subnetworking"
+}
 
+# Variable for Certificate Name
+variable "certificate-name" {
+  description = "Name of the Root Cert for VPN"
+  type        = string 
+  default     = "LothLair-RootCert.crt"
 }
