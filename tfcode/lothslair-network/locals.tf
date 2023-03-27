@@ -1,4 +1,6 @@
-tags = {
-    environment = var.environment
-    toolkit     = "terraform"
-  }
+locals {
+    tags = {
+        environment = var.environment
+        toolkit     = "terraform"
+    }
+}
