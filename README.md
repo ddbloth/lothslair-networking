@@ -13,3 +13,8 @@ Allow for implemenation fo Private Endpoints / Connections
 Some Notes
 Before running hte self signed cert script, you may need to do the following:
  Set-ExecutionPolicy -ExecutionPolicy Bypass
+
+When looking for VM Images, you can run the following to list them:
+ az vm image list --output table --publisher Canonical
+
+ 0001-com-ubuntu-server-jammy                 Canonical    22_04-lts                     Canonical:0001-com-ubuntu-server-jammy:22_04-lts:22.04.202204200                             22.04.202204200
