@@ -28,13 +28,11 @@ resource "random_password" "vm_admin_pw" {
 }
 
 resource "azurerm_key_vault_secret" "kv_vm_admin_pw" {
-  depends_on = [
-    azurerm_role_assignment.kv_ado_rbac
-  ]
+
   name         = "vm-admin-pw"
   value        = random_password.vm_admin_pw.result
   content_type = "Password for VM Admin ${var.vm_adminuser}"
-  key_vault_id = data.azurerm_key_vault_secret.tf_kv.id
+  key_vault_id = data.azurerm_key_vault.tf_kv.id
   tags         = local.tags
 }
 /*
