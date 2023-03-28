@@ -5,7 +5,7 @@ data "azuread_user" "user" {
 	user_principal_name = "ddbhp1227_gmail.com#EXT#@ddbhp1227gmail.onmicrosoft.com"
 }
 
-data "azurerm_key_vault_secret" "tf_kv" {
+data "azurerm_key_vault" "tf_kv" {
 	name = var.tf_kv_name
     resource_group_name = var.tf_kv_rg_name
 }
