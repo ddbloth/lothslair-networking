@@ -1,11 +1,11 @@
 name = "lothslair"
 environment = "dev"
-location    = "eus"
-azureRegion = "eastus"
+location    = "cus"
+azureRegion = "centralus"
 
 vm_size = "Standard_B1ls"
 vm_adminuser = "lothlair-admin"
-vm_adminpw = "Happy#4942#Ever"
+tf_kv_name = "kv-tf-lothslair12265"
 
 sql_administrator_login = "sqladmin"
 

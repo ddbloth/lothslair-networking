@@ -21,14 +21,23 @@ resource "azurerm_resource_group" "lothslair_rg" {
   tags     = local.tags
 }
 
-resource "azurerm_container_registry" "acr" {
-  name  = "acr${var.name}${var.environment}"
-  resource_group_name = azurerm_resource_group.lothslair_rg.name
-  location = var.azureRegion
-  sku = "Standard"
-  admin_enabled = true
+resource "random_password" "vm_admin_pw" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
+resource "azurerm_key_vault_secret" "kv_vm_admin_pw" {
+  depends_on = [
+    azurerm_role_assignment.kv_ado_rbac
+  ]
+  name         = "vm-admin-pw"
+  value        = random_password.vm_admin_pw.result
+  content_type = "Password for VM Admin ${var.vm_adminuser}"
+  key_vault_id = data.azurerm_key_vault_secret.tf_kv.id
+  tags         = local.tags
+}
+/*
 module "lothslair_vm" {
   source = "../modules/ubuntu_vm"
 
@@ -43,6 +52,28 @@ module "lothslair_vm" {
   admin_username					  = "${var.vm_adminuser}"
   admin_password					  = random_password.vm_admin_pw.result
 }
+
+
+
+resource "azurerm_virtual_machine_extension" "vm-ado-install" {
+  name                 = module.lothslair_vm.name
+  virtual_machine_id   = module.lothslair_vm.id
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
+
+  settings = <<SETTINGS
+ {
+  "commandToExecute": "hostname && uptime"
+ }
+SETTINGS
+
+
+  tags = {
+    environment = "${var.environment}"
+  }
+}
+*/
 
 /*
 # Deploy MS SQL Server & DB
@@ -62,7 +93,14 @@ resource "azurerm_mssql_database" "piwigo_db" {
   server_id            = azurerm_mssql_server.piwigo_mssql_svr.id
   storage_account_type = "Local"
 }
-*/
+
+resource "azurerm_container_registry" "acr" {
+  name  = "acr${var.name}${var.environment}"
+  resource_group_name = azurerm_resource_group.lothslair_rg.name
+  location = var.azureRegion
+  sku = "Standard"
+  admin_enabled = true
+}
 
 # Key Vault Deployment
 resource "azurerm_key_vault" "keyvault" {
@@ -93,11 +131,6 @@ resource "random_password" "sql_admin_pw" {
   special          = true
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
-resource "random_password" "vm_admin_pw" {
-  length           = 16
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
-}
 
 # Store Randos in the Vault
 resource "azurerm_key_vault_secret" "kv_sql_admin_pw" {
@@ -110,32 +143,4 @@ resource "azurerm_key_vault_secret" "kv_sql_admin_pw" {
   key_vault_id = azurerm_key_vault.keyvault.id
   tags         = local.tags
 }
-resource "azurerm_key_vault_secret" "kv_vm_admin_pw" {
-  depends_on = [
-    azurerm_role_assignment.kv_ado_rbac
-  ]
-  name         = "vm-admin-pw"
-  value        = random_password.vm_admin_pw.result
-  content_type = "Password for VM Admin ${var.vm_adminuser}"
-  key_vault_id = azurerm_key_vault.keyvault.id
-  tags         = local.tags
-}
-
-resource "azurerm_virtual_machine_extension" "vm-ado-install" {
-  name                 = module.lothslair_vm.name
-  virtual_machine_id   = module.lothslair_vm.id
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.0"
-
-  settings = <<SETTINGS
- {
-  "commandToExecute": "hostname && uptime"
- }
-SETTINGS
-
-
-  tags = {
-    environment = "${var.environment}"
-  }
-}
+*/

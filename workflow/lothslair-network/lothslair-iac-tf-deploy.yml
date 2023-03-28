@@ -1,11 +1,4 @@
-trigger:
-  branches:
-    include:
-    - main
-  paths:
-    include:
-    - tfcode/lothslair-network/*
-    - workflow/lothslair-network/lothslair-iac-tf-deploy.yml
+trigger: none
 
 extends:
   template: ../templates/pipeline/terraform.yaml

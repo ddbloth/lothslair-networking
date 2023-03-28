@@ -1,3 +1,5 @@
+trigger: none
+
 extends:
   template: ../templates/pipeline/terraform_destroy.yaml
   parameters:

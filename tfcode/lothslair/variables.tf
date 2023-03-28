@@ -20,13 +20,17 @@ variable "azureRegion" {
   default     = "eastus"
 }
 
+# Terraform KV Name
+variable "tf_kv_name" {
+  description = "The resource name of the terraform key vault"
+  type        = string
+}  
+
 # VM Parameters
 variable "vm_adminuser" {
   type = string
 }
-variable "vm_adminpw" {
-  type = string
-}
+
 variable "vm_size" {
   type = string
 }
