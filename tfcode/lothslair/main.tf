@@ -41,7 +41,7 @@ module "lothslair_vm" {
 
   location                            = var.azureRegion
   resource_group_name                 = azurerm_resource_group.lothslair_rg.name
-  name                                = "vm-${var.azureRegion}-${var.environment}-${var.name}"
+  name                                = "vm-${var.location}-${var.environment}-${var.name}"
   env                                 = "${var.environment}"
   tags                                = local.tags
   vm_size                             = "${var.vm_size}"
