@@ -46,11 +46,11 @@ variable "vm_si_publisher" {
 }
 variable "vm_si_offer" {
   type = string
-  default = "0001-com-ubuntu-minimal-kinetic"
+  default = "0001-com-ubuntu-server-jammy"
 } 
 variable "vm_si_sku" {
   type = string
-  default = "minimal-22_10"
+  default = "22_04-lts"
 }
 variable "vm_si_version" {
   type = string
