@@ -7,4 +7,5 @@ data "azuread_user" "user" {
 
 data "azurerm_key_vault_secret" "tf_kv" {
 	name = var.tf_kv_name
+    resource_group_name = var.tf_kv_rg_name
 }
