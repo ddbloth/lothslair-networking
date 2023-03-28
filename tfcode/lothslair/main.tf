@@ -35,13 +35,13 @@ resource "azurerm_key_vault_secret" "kv_vm_admin_pw" {
   key_vault_id = data.azurerm_key_vault.tf_kv.id
   tags         = local.tags
 }
-/*
+
 module "lothslair_vm" {
   source = "../modules/ubuntu_vm"
 
   location                            = var.azureRegion
   resource_group_name                 = azurerm_resource_group.lothslair_rg.name
-  name                                = "${var.name}"
+  name                                = "vm-${var.azureRegion}-${var.environment}-${var.name}"
   env                                 = "${var.environment}"
   tags                                = local.tags
   vm_size                             = "${var.vm_size}"
@@ -71,7 +71,7 @@ SETTINGS
     environment = "${var.environment}"
   }
 }
-*/
+
 
 /*
 # Deploy MS SQL Server & DB
