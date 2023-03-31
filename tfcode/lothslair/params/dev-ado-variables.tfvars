@@ -3,6 +3,10 @@ environment = "dev"
 location    = "cus"
 azureRegion = "centralus"
 
+spoke_vnet_rg_name = ""
+spoke_vnet_name = ""
+spoke_subnet_name = ""
+
 vm_size = "Standard_B1ls"
 vm_adminuser = "lothlair-admin"
 

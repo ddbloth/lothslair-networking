@@ -28,7 +28,6 @@ resource "random_password" "vm_admin_pw" {
 }
 
 resource "azurerm_key_vault_secret" "kv_vm_admin_pw" {
-
   name         = "vm-admin-pw"
   value        = random_password.vm_admin_pw.result
   content_type = "Password for VM Admin ${var.vm_adminuser}"
@@ -36,40 +35,109 @@ resource "azurerm_key_vault_secret" "kv_vm_admin_pw" {
   tags         = local.tags
 }
 
-module "lothslair_vm" {
-  source = "../modules/ubuntu_vm"
+# Create network interface
+resource "azurerm_network_interface" "tf_vm_nic" {
+  name                = "tfvm-${var.location}${var.environment}-dpo-nic"
+  location            = var.azureRegion
+  resource_group_name = var.tf_rg_name
 
-  location                            = var.azureRegion
-  resource_group_name                 = azurerm_resource_group.lothslair_rg.name
-  name                                = "vm-${var.location}-${var.environment}-${var.name}"
-  env                                 = "${var.environment}"
-  tags                                = local.tags
-  vm_size                             = "${var.vm_size}"
-  vm_si_offer                         = "${var.vm_si_offer}"
-  vm_si_sku                           = "${var.vm_si_sku}"
-  admin_username					  = "${var.vm_adminuser}"
-  admin_password					  = random_password.vm_admin_pw.result
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = data.azurerm_subnet.spoke_sub.id
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags["createdDate"]
+    ]
+  }
 }
 
+# Create Network Security Group and rule
+resource "azurerm_network_security_group" "tf_ddb_nsg" {
+  name                = "nsg-${var.location}${var.environment}-dpo-tf"
+  location            = var.azureRegion
+  resource_group_name = local.terraform_rg_name
 
-
-resource "azurerm_virtual_machine_extension" "vm-ado-install" {
-  name                 = module.lothslair_vm.name
-  virtual_machine_id   = module.lothslair_vm.id
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.0"
-
-  settings = <<SETTINGS
- {
-  "commandToExecute": "hostname && uptime"
- }
-SETTINGS
-
-
-  tags = {
-    environment = "${var.environment}"
+  security_rule {
+    name                       = "SSH"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
+
+  lifecycle {
+    ignore_changes = [
+      tags["createdDate"]
+    ]
+  }
+}
+
+# Connect the security group to the network interface
+resource "azurerm_network_interface_security_group_association" "nsg_as" {
+  network_interface_id      = azurerm_network_interface.tf_ddb_nic.id
+  network_security_group_id = azurerm_network_security_group.tf_ddb_nsg.id
+}
+
+# Create the VM
+resource "azurerm_linux_virtual_machine" "tf_ddb_vm" {
+  name                  = "vm-${var.azureRegion}-${var.environment}-dpo"
+  location              = var.azureRegion
+  resource_group_name   = local.terraform_rg_name
+  network_interface_ids = [azurerm_network_interface.tf_ddb_nic.id]
+  size                  = var.vm_size
+
+  os_disk {
+    name                 = "${var.environment}-dpo-osdisk"
+    caching              = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+  }
+  source_image_reference {
+    publisher = "${var.vm_si_publisher}"
+    offer     = "${var.vm_si_offer}"
+    sku       = "${var.vm_si_sku}"
+    version   = "${var.vm_si_version}"
+  }
+
+  computer_name                   = "vm-${var.azureRegion}-${var.environment}-dpo"
+  admin_username                  = "${var.admin_username}"
+  admin_password                  = azurerm_key_vault_secret.tf_ddb_kv_vm_pw.value
+  disable_password_authentication = false
+
+  provisioner "file" {
+    source      = "../cachain/hpcacertchain.crt"
+    destination = "hpcacert.crt"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv hpcacert.crt /usr/local/share/ca-certificates/hpcacert.crt",
+      "sudo update-ca-certificates",
+      "sudo apt install unzip -y",
+    ]
+  }
+
+ connection {
+    host     = "${self.private_ip_address}"
+    type     = "ssh"
+    user     = "${var.admin_username}"
+    password = azurerm_key_vault_secret.tf_ddb_kv_vm_pw.value
+    agent    = "false"
+    timeout  = "1m"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags["createdDate"]
+    ]
+  }
+
 }
 
 

@@ -20,13 +20,30 @@ variable "azureRegion" {
   default     = "eastus"
 }
 
+# Vnet/Subnet vars
+variable "spoke_vnet_rg_name" {
+  description = "The name of the Netowrking Resource Group"
+  type        = string
+  
+}
+variable "spoke_vnet_name" {
+  description = "The name of the vNet"
+  type        = string
+}
+
+variable "spoke_subnet_name" {
+  description = "The name of the subnet in the vNet"
+  type        = string
+  
+}
+
 # Terraform KV Name & RG
 variable "tf_kv_name" {
   description = "The resource name of the terraform key vault"
   type        = string
 }  
-variable "tf_kv_rg_name" {
-  description = "The resource name of the terraform key vault"
+variable "tf_rg_name" {
+  description = "The resource name of the terraform resources"
   type        = string
 } 
 
