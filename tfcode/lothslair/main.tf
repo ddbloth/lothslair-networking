@@ -55,7 +55,7 @@ resource "azurerm_network_interface" "tf_vm_nic" {
 }
 
 # Create Network Security Group and rule
-resource "azurerm_network_security_group" "tf_ddb_nsg" {
+resource "azurerm_network_security_group" "tf_vm_nsg" {
   name                = "nsg-${var.location}${var.environment}-dpo-tf"
   location            = var.azureRegion
   resource_group_name = local.terraform_rg_name
@@ -81,8 +81,8 @@ resource "azurerm_network_security_group" "tf_ddb_nsg" {
 
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "nsg_as" {
-  network_interface_id      = azurerm_network_interface.tf_ddb_nic.id
-  network_security_group_id = azurerm_network_security_group.tf_ddb_nsg.id
+  network_interface_id      = azurerm_network_interface.tf_vm_nic.id
+  network_security_group_id = azurerm_network_security_group.tf_vm_nsg.id
 }
 
 # Create the VM
