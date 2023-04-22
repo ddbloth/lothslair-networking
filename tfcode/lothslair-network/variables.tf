@@ -25,7 +25,12 @@ variable "vnet_cidr" {
   type        = string
 }
 
-variable "subnet_cidr" {
+variable "gateway_subnet_cidr" {
+  description = "The subnet CIDR to use"
+  type        = string 
+}
+
+variable "default_subnet_cidr" {
   description = "The subnet CIDR to use"
   type        = string 
 }
