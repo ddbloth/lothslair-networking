@@ -4,7 +4,7 @@ location    = "cus"
 azureRegion = "centralus"
 
 spoke_vnet_rg_name = ""
-spoke_vnet_name = ""
+spoke_vnet_name = "vnet-centralus-dev-lothslair"
 spoke_subnet_name = ""
 
 vm_size = "Standard_B1ls"

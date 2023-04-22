@@ -109,6 +109,7 @@ resource "azurerm_linux_virtual_machine" "tf_ddb_vm" {
   admin_username                  = "${var.admin_username}"
   admin_password                  = azurerm_key_vault_secret.tf_ddb_kv_vm_pw.value
   disable_password_authentication = false
+/* DDB - SPecific to HealthPartners
 
   provisioner "file" {
     source      = "../cachain/hpcacertchain.crt"
@@ -122,6 +123,7 @@ resource "azurerm_linux_virtual_machine" "tf_ddb_vm" {
       "sudo apt install unzip -y",
     ]
   }
+*/
 
  connection {
     host     = "${self.private_ip_address}"

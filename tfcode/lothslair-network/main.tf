@@ -1,6 +1,11 @@
 provider "azurerm" {
 
-  features {}
+  features {
+    key_vault {
+      purge_soft_delete_on_destroy    = true
+      recover_soft_deleted_key_vaults = false
+    }
+  }
 }
 
 # Create a Resource Groups
@@ -23,10 +28,19 @@ resource "azurerm_virtual_network" "vnet" {
 # Create a Gateway Subnet
 resource "azurerm_subnet" "gateway_subnet" {
   name                 = "GatewaySubnet" # do not rename
-  address_prefixes     = [var.subnet_cidr]
+  address_prefixes     = [var.gateway_subnet_cidr]
   virtual_network_name = azurerm_virtual_network.vnet.name
   resource_group_name  = azurerm_resource_group.networking_rg.name
 }
+
+resource "azurerm_subnet" "default_subnet" {
+  name                 = "Default" # The base subnet for everythign that is "protected"
+  address_prefixes     = [var.default_subnet_cidr]
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  resource_group_name  = azurerm_resource_group.networking_rg.name
+}
+
+
 
 # Create the Azure Key Vault - globally unique - 24 characters max
 resource "azurerm_key_vault" "kv_lothslair" {
