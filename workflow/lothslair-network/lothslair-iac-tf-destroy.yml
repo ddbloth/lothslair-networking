@@ -6,8 +6,8 @@ extends:
     environments:
       - name: dev
         operation: 'destroy'
-        workingDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair/"
-        paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair/params/"
+        workingDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair-network/"
+        paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/lothslair-network/params/"
         serviceConnectionName: 'LothLair-IaC-Terraform'
         tfStateRGName: 'rg-terraform'
         tfStateStorageAccountName: 'sttfdata13669'
