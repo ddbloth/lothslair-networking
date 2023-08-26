@@ -122,6 +122,9 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
       #"sudo mv hpcacert.crt /usr/local/share/ca-certificates/hpcacert.crt",
       #"sudo update-ca-certificates",
       "sudo apt install unzip -y",
+      "curl https://vstsagentpackage.azureedge.net/agent/3.225.0/vsts-agent-linux-x64-3.225.0.tar.gz --output vsts-agent-linux-x64-3.225.0.tar.gz",
+      "~/$ mkdir myagent && cd myagent",
+      "~/myagent$ tar zxvf ~/Downloads/vsts-agent-linux-x64-3.225.0.tar.gz"
     ]
   }
 
