@@ -39,7 +39,7 @@ resource "azurerm_key_vault_secret" "kv_vm_admin_pw" {
 resource "azurerm_network_interface" "tf_vm_nic" {
   name                = "tfvm-${var.location}${var.environment}-dpo-nic"
   location            = var.azureRegion
-  resource_group_name = var.tf_rg_name
+  resource_group_name = local.tf_rg_name
 
   ip_configuration {
     name                          = "internal"

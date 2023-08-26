@@ -6,8 +6,8 @@ data "azuread_user" "user" {
 }
 
 data "azurerm_key_vault" "tf_kv" {
-	name = var.tf_kv_name
-	resource_group_name = var.tf_rg_name
+	name = local.tf_kv_name
+	resource_group_name = local.tf_rg_name
 }
 
 data "azurerm_resource_group" "network_rg" {
