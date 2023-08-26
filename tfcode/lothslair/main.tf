@@ -86,11 +86,11 @@ resource "azurerm_network_interface_security_group_association" "nsg_as" {
 }
 
 # Create the VM
-resource "azurerm_linux_virtual_machine" "tf_ddb_vm" {
+resource "azurerm_linux_virtual_machine" "tf_vm" {
   name                  = "vm-${var.azureRegion}-${var.environment}-dpo"
   location              = var.azureRegion
   resource_group_name   = local.terraform_rg_name
-  network_interface_ids = [azurerm_network_interface.tf_ddb_nic.id]
+  network_interface_ids = [azurerm_network_interface.tf_vm_nic.id]
   size                  = var.vm_size
 
   os_disk {
@@ -107,9 +107,9 @@ resource "azurerm_linux_virtual_machine" "tf_ddb_vm" {
 
   computer_name                   = "vm-${var.azureRegion}-${var.environment}-dpo"
   admin_username                  = "${var.admin_username}"
-  admin_password                  = azurerm_key_vault_secret.tf_ddb_kv_vm_pw.value
+  admin_password                  = azurerm_key_vault_secret.kv_vm_admin_pw.value
   disable_password_authentication = false
-/* DDB - SPecific to HealthPartners
+/* Code Save - Specific to HealthPartners
 
   provisioner "file" {
     source      = "../cachain/hpcacertchain.crt"
@@ -129,7 +129,7 @@ resource "azurerm_linux_virtual_machine" "tf_ddb_vm" {
     host     = "${self.private_ip_address}"
     type     = "ssh"
     user     = "${var.admin_username}"
-    password = azurerm_key_vault_secret.tf_ddb_kv_vm_pw.value
+    password = azurerm_key_vault_secret.kv_vm_admin_pw.value
     agent    = "false"
     timeout  = "1m"
   }
