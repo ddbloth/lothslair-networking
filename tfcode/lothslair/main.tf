@@ -115,15 +115,16 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
     source      = "../cachain/hpcacertchain.crt"
     destination = "hpcacert.crt"
   }
+*/
 
   provisioner "remote-exec" {
     inline = [
-      "sudo mv hpcacert.crt /usr/local/share/ca-certificates/hpcacert.crt",
-      "sudo update-ca-certificates",
+      #"sudo mv hpcacert.crt /usr/local/share/ca-certificates/hpcacert.crt",
+      #"sudo update-ca-certificates",
       "sudo apt install unzip -y",
     ]
   }
-*/
+
 
  connection {
     host     = "${self.private_ip_address}"
