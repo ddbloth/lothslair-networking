@@ -58,7 +58,7 @@ resource "azurerm_network_interface" "tf_vm_nic" {
 resource "azurerm_network_security_group" "tf_vm_nsg" {
   name                = "nsg-${var.location}${var.environment}-dpo-tf"
   location            = var.azureRegion
-  resource_group_name = local.terraform_rg_name
+  resource_group_name = local.tf_rg_name
 
   security_rule {
     name                       = "SSH"
@@ -89,7 +89,7 @@ resource "azurerm_network_interface_security_group_association" "nsg_as" {
 resource "azurerm_linux_virtual_machine" "tf_vm" {
   name                  = "vm-${var.azureRegion}-${var.environment}-dpo"
   location              = var.azureRegion
-  resource_group_name   = local.terraform_rg_name
+  resource_group_name   = local.tf_rg_name
   network_interface_ids = [azurerm_network_interface.tf_vm_nic.id]
   size                  = var.vm_size
 
