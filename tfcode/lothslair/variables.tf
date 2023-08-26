@@ -38,6 +38,7 @@ variable "spoke_subnet_name" {
 }
 
 # Terraform KV Name & RG
+/* Made them locals
 variable "tf_kv_name" {
   description = "The resource name of the terraform key vault"
   type        = string
@@ -46,6 +47,7 @@ variable "tf_rg_name" {
   description = "The resource name of the terraform resources"
   type        = string
 } 
+*/
 
 # VM Parameters
 variable "vm_adminuser" {
