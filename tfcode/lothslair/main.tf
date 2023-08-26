@@ -106,7 +106,7 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
   }
 
   computer_name                   = "vm-${var.azureRegion}-${var.environment}-dpo"
-  admin_username                  = "${var.admin_username}"
+  admin_username                  = "${var.vm_adminuser}"
   admin_password                  = azurerm_key_vault_secret.kv_vm_admin_pw.value
   disable_password_authentication = false
 /* Code Save - Specific to HealthPartners
@@ -128,7 +128,7 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
  connection {
     host     = "${self.private_ip_address}"
     type     = "ssh"
-    user     = "${var.admin_username}"
+    user     = "${var.vm_adminuser}"
     password = azurerm_key_vault_secret.kv_vm_admin_pw.value
     agent    = "false"
     timeout  = "1m"
