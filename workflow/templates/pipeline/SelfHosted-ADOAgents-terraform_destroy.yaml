@@ -1,0 +1,31 @@
+parameters:
+  - name: environments
+    displayName: 'List of Environments to Deploy To'
+    type: object
+  - name: operation
+    displayName: 'Terraform Operation to Complete'
+    type: string
+    default: 'destroy'
+    values:
+    - apply
+    - destroy
+
+variables:
+  - name: operation_template
+    ${{ if eq( parameters.operation, 'destroy') }}:
+       value: "../stage/SelfHosted-ADOAgents-terraformPlanDestroy.yaml"
+    ${{ else }}:
+     value: "../stage/SelfHosted-ADOAgents-terraformPlanApply.yaml"
+
+stages:
+- ${{ each environment in parameters.environments }}:
+  - template: ${{ variables.operation_template }}
+    parameters:
+      environmentName: ${{ environment.name }}
+      workingDir: ${{ environment.workingDir }}
+      paramsDir: ${{ environment.paramsDir }}
+      serviceConnectionName: ${{ environment.serviceConnectionName }}
+      tfStateRGName: ${{ environment.tfStateRGName }}
+      tfStateStorageAccountName: ${{ environment.tfStateStorageAccountName }}
+      tfStateContainerName: ${{ environment.tfStateContainerName }}
+      tfStateKeyName: ${{ environment.tfStateKeyName }}

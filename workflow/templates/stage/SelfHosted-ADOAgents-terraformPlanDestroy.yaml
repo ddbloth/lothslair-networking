@@ -1,0 +1,137 @@
+parameters:
+  - name: environmentName
+    type: string
+
+  - name: workingDir
+    type: string
+
+  - name: paramsDir
+    type: string
+
+  - name: serviceConnectionName
+    type: string
+
+  - name: tfStateRGName
+    type: string
+
+  - name: tfStateStorageAccountName
+    type: string
+
+  - name: tfStateContainerName
+    type: string
+
+  - name: tfStateKeyName
+    type: string
+
+stages:
+  - stage: ${{ replace(parameters.environmentName, '-', '_') }}
+    displayName: ${{ parameters.environmentName }}
+    jobs:
+    - job: plan
+      displayName: Plan
+      pool:
+        name: SelfHosted-ADOAgents
+      steps:
+      - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+        displayName: 'Install Terraform'
+
+      - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+        displayName: 'terraform init'
+        inputs:
+          command: 'init'
+          workingDirectory: '${{ parameters.workingDir }}'
+          commandOptions: '-input=false -var-file="${{ parameters.paramsDir }}/${{ parameters.environmentName }}-ado-variables.tfvars"'
+          #ensureBackend: true
+          backendType: 'azurerm'
+          backendServiceArm: '${{ parameters.serviceConnectionName }}'
+          backendAzureRmResourceGroupName: '${{ parameters.tfStateRGName }}'
+          backendAzureRmStorageAccountName: '${{ parameters.tfStateStorageAccountName }}'
+          backendAzureRmContainerName: '${{ parameters.tfStateContainerName }}'
+          backendAzureRmKey: '${{ parameters.tfStateKeyName }}'
+
+      - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+        displayName: 'terraform plan --destroy'
+        inputs:
+          command: 'plan'
+          workingDirectory: '${{ parameters.workingDir }}'
+          environmentServiceName: '${{ parameters.serviceConnectionName }}'
+          commandOptions: '--destroy -input=false -var-file="${{ parameters.paramsDir }}/${{ parameters.environmentName }}-ado-variables.tfvars" -out="$(Build.ArtifactStagingDirectory)/${{ parameters.environmentName }}.tfplan" -detailed-exitcode'
+
+      - task: PowerShell@2
+        name: terraformCheck
+        displayName: Check If there are Terraform Changes
+        inputs:
+          targetType: 'inline'
+          script: |
+            if ($env:TERRAFORM_PLAN_HAS_CHANGES -eq $true) {
+              Write-Host "Terrafrom Changes Detected"
+              Write-Host "##vso[task.setvariable variable=tfChangeDetected;isOutput=true]true"
+              exit 0
+            }
+            Write-Host "No Terrafrom Changes Detected"
+          showWarnings: true
+          pwsh: true
+          workingDirectory: '${{ parameters.workingDir }}'
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Save TF Plan File'
+        inputs:
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+          artifact: '${{ parameters.environmentName }}-tfPlan'
+          publishLocation: 'pipeline'
+
+    - job: approve
+      displayName: Approve
+      dependsOn: plan
+      variables:
+          tfChangeDetected: $[ dependencies.plan.outputs['terraformCheck.tfChangeDetected']]
+      condition: and(succeeded(), eq(variables['tfChangeDetected'], 'true'))
+      pool: server
+      timeoutInMinutes: 60
+      steps:
+      - task: ManualValidation@0
+        timeoutInMinutes: 60
+        inputs: 
+          notifyUsers:
+            '*'
+          instructions: Please review the Terraform Plan result then approve to apply the changes.
+          onTimeout: 'reject' # automatically reject after timeout
+
+    - deployment: destroy
+      displayName: Destroy
+      dependsOn: approve
+      variables:
+          tfChangeDetected: $[ dependencies.plan.outputs['terraformCheck.tfChangeDetected']]
+      condition: and(succeeded(), eq(variables['tfChangeDetected'], 'true'))
+      pool:
+        name: SelfHosted-ADOAgents
+      environment: ${{ parameters.environmentName }}
+      strategy: 
+        runOnce:
+          deploy:
+            steps:
+              - checkout: self
+
+              - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+                displayName: 'Install Terraform'
+
+              - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+                displayName: 'terraform init'
+                inputs:
+                  command: 'init'
+                  workingDirectory: '${{ parameters.workingDir }}'
+                  commandOptions: '-input=false -var-file="${{ parameters.paramsDir }}/${{ parameters.environmentName }}-ado-variables.tfvars"'
+                  backendType: 'azurerm'
+                  backendServiceArm: '${{ parameters.serviceConnectionName }}'
+                  backendAzureRmResourceGroupName: '${{ parameters.tfStateRGName }}'
+                  backendAzureRmStorageAccountName: '${{ parameters.tfStateStorageAccountName }}'
+                  backendAzureRmContainerName: '${{ parameters.tfStateContainerName }}'
+                  backendAzureRmKey: '${{ parameters.tfStateKeyName }}'
+
+              - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-cli.TerraformCLI@0
+                displayName: 'Terraform Destroy'
+                inputs:
+                  command: 'destroy'
+                  workingDirectory: '${{ parameters.workingDir }}'
+                  environmentServiceName: '${{ parameters.serviceConnectionName }}'
+                  commandOptions: '-input=false -var-file="${{ parameters.paramsDir }}/${{ parameters.environmentName }}-ado-variables.tfvars'
