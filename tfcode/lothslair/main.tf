@@ -10,16 +10,9 @@ locals {
     Environment        = var.environment
     Toolkit            = "terraform"
   }
-
-  rg_name = "rg-${var.azureRegion}-${var.environment}-lothslair"
-
 }
 
-resource "azurerm_resource_group" "lothslair_rg" {
-  location = var.azureRegion
-  name     = local.rg_name
-  tags     = local.tags
-}
+
 
 resource "random_password" "vm_admin_pw" {
   length           = 16
