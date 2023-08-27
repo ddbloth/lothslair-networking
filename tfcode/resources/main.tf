@@ -33,6 +33,11 @@ resource "azurerm_private_endpoint" "pep_sa_lothslair_1" {
   subnet_id           = data.azurerm_subnet.spoke_sub.id
   tags                = local.tags
 
+  private_dns_zone_group {
+    name                 = "private-dns-zone-group"
+    private_dns_zone_ids = [data.azurerm_private_dns_zone.lothslair_private_dns_zone.id]
+  }
+
   private_service_connection {
     name                           = "psc-${var.azureRegion}-sa${var.location}${var.name}${var.environment}"
     private_connection_resource_id = azurerm_storage_account.sa_lothslair_1.id
