@@ -7,7 +7,7 @@ spoke_vnet_rg_name = "rg-subnetworking"
 spoke_vnet_name = "vnet-centralus-dev-lothslair"
 spoke_subnet_name = "Default"
 
-vm_size = "Standard_B1ls"
+vm_size = "Standard_B2s"
 vm_adminuser = "lothlair-admin"
 
 #tf_kv_name = "kv-tf-lothslair12265"
