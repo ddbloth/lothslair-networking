@@ -3,7 +3,7 @@ terraform {
     # Set provider & version
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>3.69.0"
+      version = "~>3.71.0"
     }
   }
 
