@@ -1,0 +1,15 @@
+trigger: none
+
+extends:
+  template: ../templates/pipeline/terraform_destroy.yaml
+  parameters:
+    environments:
+      - name: dev
+        operation: 'destroy'
+        workingDir: "$(System.DefaultWorkingDirectory)/tfcode/resources/"
+        paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/resources/params/"
+        serviceConnectionName: 'LothLair-IaC-Terraform'
+        tfStateRGName: 'rg-terraform'
+        tfStateStorageAccountName: 'sttfdata13669'
+        tfStateContainerName: 'tfstate'
+        tfStateKeyName: 'lothslair-resources'

@@ -1,0 +1,15 @@
+trigger: none
+
+extends:
+  template: ../templates/pipeline/terraform.yaml
+  parameters:
+    environments:
+      - name: dev
+        workingDir: "$(System.DefaultWorkingDirectory)/tfcode/resources/"
+        paramsDir: "$(System.DefaultWorkingDirectory)/tfcode/resources/params/"
+        serviceConnectionName: 'LothLair-IaC-Terraform'
+        tfStateRGName: 'rg-terraform'
+        tfStateStorageAccountName: 'sttfdata13669'
+        tfStateContainerName: 'tfstate'
+        tfStateKeyName: 'lothslair-resources'
+
