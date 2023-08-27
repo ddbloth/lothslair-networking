@@ -115,7 +115,6 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
     source      = "../cachain/hpcacertchain.crt"
     destination = "hpcacert.crt"
   }
-*/
 
   provisioner "remote-exec" {
     inline = [
@@ -127,6 +126,7 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
       "~/myagent$ tar zxvf ~/Downloads/vsts-agent-linux-x64-3.225.0.tar.gz"
     ]
   }
+  */
 
 
  connection {
