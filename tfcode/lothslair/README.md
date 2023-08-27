@@ -30,5 +30,7 @@ https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/linux-agent?view
 
 <h3>NOTES</h3>
 <ul>
-  <li>I see a failure on the first run in terraform install.  Terrafrom does install and is findable, however my ADO agent crashes runnign hte "verion" check of it.  Second run - the install is not done becuase it is found, and version check completes successfully</li>
+  <li>I see a failure on the first run in terraform install.  Terrafrom does install and is findable, however my ADO agent crashes runnign hte "verion" check of it.  Second run - the install is not done becuase it is found, and version check completes successfully
+    <li>CAUSE:  CPU  - Need to upgrade to a 2 vCPU host.  Upgrade did cause loss of connection, but all setup (agent, etc) was still present</li>
+  </li>
 
