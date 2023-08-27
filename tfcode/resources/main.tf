@@ -12,7 +12,7 @@ resource "azurerm_storage_account" "sa_lothslair_1"  {
   name = "sa${var.location}${var.name}${var.environment}"
   location = var.azureRegion
   resource_group_name = azurerm_resource_group.lothslair_rg.name
-  public_network_access_enabled = false
+  public_network_access_enabled = true
   account_kind             = "StorageV2"
   account_tier             = "Standard"
   account_replication_type = "LRS"
