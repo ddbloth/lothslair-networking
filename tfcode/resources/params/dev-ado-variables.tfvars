@@ -1,4 +1,5 @@
 name = "lothslair"
+abbr_name = "lair"
 environment = "dev"
 location    = "cus"
 azureRegion = "centralus"
