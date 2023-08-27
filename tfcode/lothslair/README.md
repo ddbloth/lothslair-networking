@@ -20,3 +20,15 @@ https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/linux-agent?view
 
       Check the status of the service
       sudo ./svc.sh status
+
+<h2>Also need to install some utilities</h2>
+<ul>
+  <li>zip/unzip Utilities (required): sudo apt install unzip -y</li>
+  <li>Powershell (if you run PS scripts in pipeline):  sudo snap install powershell --classic</li>
+  <li>Azure CLI (if you are running any az cli commands in pipeline):  curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash</li>
+</ul>
+
+<h3>NOTES</h3>
+<ul>
+  <li>I see a failure on the first run in terraform install.  Terrafrom does install and is findable, however my ADO agent crashes runnign hte "verion" check of it.  Second run - the install is not done becuase it is found, and version check completes successfully</li>
+
