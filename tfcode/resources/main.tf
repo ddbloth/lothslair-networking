@@ -37,7 +37,7 @@ resource "azurerm_private_endpoint" "pep_sa_lothslair_1" {
     name                           = "psc-${var.azureRegion}-sa${var.location}${var.name}${var.environment}"
     private_connection_resource_id = azurerm_storage_account.sa_lothslair_1.id
     is_manual_connection           = false
-    subresource_names              = "blob"
+    subresource_names              = ["blob"]
   }
 
   lifecycle {
