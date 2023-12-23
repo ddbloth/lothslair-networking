@@ -128,15 +128,15 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo mv hpcacert.crt /usr/local/share/ca-certificates/hpcacert.crt",
-      "sudo update-ca-certificates",
+      "#sudo mv hpcacert.crt /usr/local/share/ca-certificates/hpcacert.crt",
+      "#sudo update-ca-certificates",
       "sudo apt-get update",
       "sudo apt-get upgrade -y",
       "sudo apt-get install unzip -y",
       "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash",
       "sudo apt-get install python3-pip -y",
-      "sudo mv azcacert.pem /opt/az/lib/python*/site-packages/certifi/cacert.pem",
-      "sudo mv environment /etc/environment",
+      "#sudo mv azcacert.pem /opt/az/lib/python*/site-packages/certifi/cacert.pem",
+      "#sudo mv environment /etc/environment",
       "sudo apt-get install -y wget apt-transport-https software-properties-common",
       "wget --no-check-certificate https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb",
       "sudo dpkg -i packages-microsoft-prod.deb",
