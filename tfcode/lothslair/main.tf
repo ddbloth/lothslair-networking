@@ -34,7 +34,7 @@ module "ado_tf_vm_v2" {
   keyvault_id    = data.azurerm_key_vault.tf_kv.id
 
   # VM Specs
-  admin_username = "${var.admin_username}"
+  vm_admin_username = "${var.vm_admin_username}"
   vm_size        = var.vm_size
   vm_publisher   = "${var.vm_publisher}"
   vm_offer       = "${var.vm_offer}"
