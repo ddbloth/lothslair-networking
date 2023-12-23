@@ -30,48 +30,36 @@ variable "spoke_vnet_name" {
   description = "The name of the vNet"
   type        = string
 }
-
 variable "spoke_subnet_name" {
   description = "The name of the subnet in the vNet"
   type        = string
   
 }
 
-# Terraform KV Name & RG
-/* Made them locals
-variable "tf_kv_name" {
-  description = "The resource name of the terraform key vault"
-  type        = string
-}  
-variable "tf_rg_name" {
-  description = "The resource name of the terraform resources"
-  type        = string
-} 
-*/
+vm_publisher       = "Canonical"
+vm_offer           = "0001-com-ubuntu-server-focal"
+vm_sku             = "20_04-lts"
+vm_version         = "latest"
+vm_admin_username  = "vmadminuser"
+vm_size            = "Standard_B2ms"
 
 # VM Parameters
 variable "vm_adminuser" {
   type = string
 }
-
 variable "vm_size" {
   type = string
 }
-
-# VM Source Image
-variable "vm_si_publisher" {
+variable "vm_publisher" {
   type = string
-  default = "Canonical"
 }
-variable "vm_si_offer" {
+variable "vm_offer" {
   type = string
-  default = "0001-com-ubuntu-server-jammy"
 } 
-variable "vm_si_sku" {
+variable "vm_sku" {
   type = string
-  default = "22_04-lts"
 }
-variable "vm_si_version" {
+variable "vm_version" {
   type = string
   default = "latest"
 }

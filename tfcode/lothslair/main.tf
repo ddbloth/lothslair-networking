@@ -12,8 +12,39 @@ locals {
   }
 }
 
+###
+# Azure DevOps Self-Hosted VM Deployment
+# Using ADO Agent VM Module
+###
+
+###
+# Create the VM
+#  - Using provisioner block to install hp self-signed certificate + azure cli
+#
+#  Note on Provisioner:  Making changes to the code inside the provisioner only takes effect on deployment
+###
+module "ado_tf_vm_v2" {
+  source = "../modules/ado-agent-vm"
+
+  vm_name        = "${var.name}-${var.azureRegion}-${var.environment}-ado-v2"
+  environment    = var.environment
+  azureRegion    = var.azureRegion
+  subnet_id      = data.azurerm_subnet.spoke_sub.id
+  rg_name        = local.tf_rg_name
+  keyvault_id    = data.azurerm_key_vault.tf_kv.id
+
+  # VM Specs
+  admin_username = "${var.admin_username}"
+  vm_size        = var.vm_size
+  vm_publisher   = "${var.vm_publisher}"
+  vm_offer       = "${var.vm_offer}"
+  vm_sku         = "${var.vm_sku}"
+  vm_version     = "${var.vm_version}"
+  tags           = local.tags
+}
 
 
+/*
 resource "random_password" "vm_admin_pw" {
   length           = 16
   special          = true
@@ -102,25 +133,6 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
   admin_username                  = "${var.vm_adminuser}"
   admin_password                  = azurerm_key_vault_secret.kv_vm_admin_pw.value
   disable_password_authentication = false
-/* Code Save - Specific to HealthPartners
-
-  provisioner "file" {
-    source      = "../cachain/hpcacertchain.crt"
-    destination = "hpcacert.crt"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      #"sudo mv hpcacert.crt /usr/local/share/ca-certificates/hpcacert.crt",
-      #"sudo update-ca-certificates",
-      "sudo apt install unzip -y",
-      "curl https://vstsagentpackage.azureedge.net/agent/3.225.0/vsts-agent-linux-x64-3.225.0.tar.gz --output vsts-agent-linux-x64-3.225.0.tar.gz",
-      "~/$ mkdir myagent && cd myagent",
-      "~/myagent$ tar zxvf ~/Downloads/vsts-agent-linux-x64-3.225.0.tar.gz"
-    ]
-  }
-  */
-
 
  connection {
     host     = "${self.private_ip_address}"
@@ -138,7 +150,7 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
   }
 
 }
-
+/*
 
 /*
 # Deploy MS SQL Server & DB
