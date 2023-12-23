@@ -36,13 +36,6 @@ variable "spoke_subnet_name" {
   
 }
 
-vm_publisher       = "Canonical"
-vm_offer           = "0001-com-ubuntu-server-focal"
-vm_sku             = "20_04-lts"
-vm_version         = "latest"
-vm_admin_username  = "vmadminuser"
-vm_size            = "Standard_B2ms"
-
 # VM Parameters
 variable "vm_adminuser" {
   type = string

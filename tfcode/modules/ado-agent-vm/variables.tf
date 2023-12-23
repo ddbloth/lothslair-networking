@@ -44,7 +44,7 @@ variable "keyvault_id" {
 ###
 # VM Resource Parameters
 ###
-variable "admin_username" {
+variable "vm_admin_username" {
   description = "Username for the VM Administration User"
   type = string
   default = "vmadminuser"
