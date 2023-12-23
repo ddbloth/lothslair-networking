@@ -21,7 +21,7 @@ resource "random_password" "admin_pw" {
 resource "azurerm_key_vault_secret" "vm_admin_pw" {
   name         = "vm-${var.vm_name}-admin-pw"
   value        = random_password.admin_pw.result
-  content_type = "Password for ${var.admin_username}"  # default: vmadminuser
+  content_type = "Password for ${var.vm_admin_username}"  # default: vmadminuser
   key_vault_id = var.keyvault_id   # --> Required
   tags         = var.tags
 
@@ -107,7 +107,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   computer_name                   = "vm-${var.vm_name}"
-  admin_username                  = "${var.admin_username}"
+  admin_username                  = "${var.vm_admin_username}"
   admin_password                  = azurerm_key_vault_secret.vm_admin_pw.value
   disable_password_authentication = false
 
@@ -149,7 +149,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   connection {
     host     = "${self.private_ip_address}"
     type     = "ssh"
-    user     = "${var.admin_username}"
+    user     = "${var.vm_admin_username}"
     password = azurerm_key_vault_secret.vm_admin_pw.value
     agent    = "false"
     timeout  = "10m"
