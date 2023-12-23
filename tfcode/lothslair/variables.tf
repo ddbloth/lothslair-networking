@@ -37,7 +37,7 @@ variable "spoke_subnet_name" {
 }
 
 # VM Parameters
-variable "vm_adminuser" {
+variable "vm_admin_username" {
   type = string
 }
 variable "vm_size" {
