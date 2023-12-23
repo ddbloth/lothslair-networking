@@ -3,14 +3,6 @@ provider "azurerm" {
   features {}
 }
 
-locals {
-  tags = {
-    Owner              = "Loth's Lair"
-    Project            = "Loths Lair"
-    Environment        = var.environment
-    Toolkit            = "terraform"
-  }
-}
 
 ###
 # Azure DevOps Self-Hosted VM Deployment
@@ -21,8 +13,12 @@ locals {
 # Create the VM
 #  - Using provisioner block to install hp self-signed certificate + azure cli
 #
-#  Note on Provisioner:  Making changes to the code inside the provisioner only takes effect on deployment
+#  Notes:
+#     on Provisioner:  Making changes to the code inside the provisioner only takes effect on deployment
+#     Can not deploy this using Azure hosted agents (no Public IP / Private Networking)
+#
 ###
+/*
 module "ado_tf_vm_v2" {
   source = "../modules/ado-agent-vm"
 
@@ -42,9 +38,12 @@ module "ado_tf_vm_v2" {
   vm_version     = "${var.vm_version}"
   tags           = local.tags
 }
+*/
 
-
-/*
+###
+#  This is hte intial ADO Agent VM to Build and requires some manual steps
+#  Consider this one a "boot strap" ADO agent
+###
 resource "random_password" "vm_admin_pw" {
   length           = 16
   special          = true
@@ -54,7 +53,7 @@ resource "random_password" "vm_admin_pw" {
 resource "azurerm_key_vault_secret" "kv_vm_admin_pw" {
   name         = "vm-admin-pw"
   value        = random_password.vm_admin_pw.result
-  content_type = "Password for VM Admin ${var.vm_adminuser}"
+  content_type = "Password for VM Admin ${var.vm_admin_username}"
   key_vault_id = data.azurerm_key_vault.tf_kv.id
   tags         = local.tags
 }
@@ -123,21 +122,21 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
     storage_account_type = "Premium_LRS"
   }
   source_image_reference {
-    publisher = "${var.vm_si_publisher}"
-    offer     = "${var.vm_si_offer}"
-    sku       = "${var.vm_si_sku}"
-    version   = "${var.vm_si_version}"
+    publisher = "${var.vm_publisher}"
+    offer     = "${var.vm_offer}"
+    sku       = "${var.vm_sku}"
+    version   = "${var.vm_version}"
   }
 
   computer_name                   = "vm-${var.azureRegion}-${var.environment}-dpo"
-  admin_username                  = "${var.vm_adminuser}"
+  admin_username                  = "${var.vm_admin_username}"
   admin_password                  = azurerm_key_vault_secret.kv_vm_admin_pw.value
   disable_password_authentication = false
 
  connection {
     host     = "${self.private_ip_address}"
     type     = "ssh"
-    user     = "${var.vm_adminuser}"
+    user     = "${var.vm_admin_username}"
     password = azurerm_key_vault_secret.kv_vm_admin_pw.value
     agent    = "false"
     timeout  = "1m"
@@ -150,7 +149,6 @@ resource "azurerm_linux_virtual_machine" "tf_vm" {
   }
 
 }
-/*
 
 /*
 # Deploy MS SQL Server & DB
