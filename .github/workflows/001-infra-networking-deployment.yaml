@@ -52,20 +52,20 @@ jobs:
           backend_sa: ${{ vars.BACKEND_SA }}
           backend_sa_container: tfstate
           backend_sa_key: ${{ inputs.environment }}.tfstate
-          working_dir: 'terraform/lothslair-network'
+          working_dir: terraform/lothslair-network
       
       - name: Terraform Validate
         uses: ddbloth/lothslair-workflow-actions/validate@v1.0
         with:
-          working_dir: 'terraform/lothslair-network'
+          working_dir: terraform/lothslair-network
       
       - name: Terraform Plan
         id: plan
         uses: ddbloth/lothslair-workflow-actions/plan@main
         with:
           environment: ${{ inputs.environment }}
-          working_dir: terraform/
-          params_dir: terraform/environments
+          working_dir: terraform/lothslair-network
+          params_dir: terraform/params
 
   apply:
     needs: terraform
@@ -96,8 +96,8 @@ jobs:
       - uses: ddbloth/lothslair-workflow-actions/download@v1.0
         with:
           environment: ${{ inputs.environment }}
-          working_dir: terraform/
+          working_dir: terraform/lothslair-network
       - uses: ddbloth/lothslair-workflow-actions/apply@v1.0
         with:
           environment: ${{ inputs.environment }}
-          working_dir: terraform/
+          working_dir: terraform/lothslair-network
