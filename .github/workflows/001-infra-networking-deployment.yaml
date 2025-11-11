@@ -65,7 +65,7 @@ jobs:
         with:
           environment: ${{ inputs.environment }}
           working_dir: terraform/lothslair-network
-          params_dir: terraform/params
+          params_dir: terraform/lothslair-network/params
 
   apply:
     needs: terraform
