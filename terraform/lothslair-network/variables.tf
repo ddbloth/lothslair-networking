@@ -47,3 +47,9 @@ variable "certificate-name" {
   type        = string 
   default     = "LothLair-RootCert.crt"
 }
+
+# Azure DevOps Group Object ID (used for RBAC assignments)
+variable "azure_devops_group_object_id" {
+  description = "Object ID of the Azure DevOps AAD Group used for administrative RBAC (e.g. Key Vault Administrator)."
+  type        = string
+}

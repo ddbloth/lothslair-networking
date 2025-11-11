@@ -67,7 +67,8 @@ resource "azurerm_role_assignment" "kv_spn_rbac" {
 resource "azurerm_role_assignment" "kv_admin_rbac" {
   scope                = azurerm_key_vault.kv_lothslair.id
   role_definition_name = "Key Vault Administrator"
-  principal_id         = data.azuread_user.user.object_id
+  # Using Azure DevOps group object id (parametrized via variable)
+  principal_id         = data.azuread_group.azure_devops.id
 }
 
 

@@ -24,3 +24,7 @@ vm_admin_username     = "vmadminuser"
 vm_size            = "Standard_B2ms"
 
 
+# Azure DevOps AAD Group (display name: AzureDevOps) object id for RBAC assignments
+azure_devops_group_object_id = "c4fb595e-20c7-4138-bc2b-88d428854789"
+
+
