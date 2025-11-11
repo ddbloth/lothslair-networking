@@ -197,7 +197,6 @@ Notes and best practices
 	- Prefer least-privilege roles for the service principal. Use two service principals if you want more fine-grained separation (one limited to state management, another with broader resource creation rights).
   - Keep service connection names stable. The pipelines reference `LothLair-IaC-Terraform` explicitly; renaming it requires updating pipeline YAMLs or the parameter value.
 
-If you'd like, I can add an example `az` + ADO REST API script to create the service connection programmatically. Want that next?
 
 ## Scripts
 
