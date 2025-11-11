@@ -89,4 +89,3 @@ jobs:
         with:
           environment: ${{ inputs.environment }}
           working_dir: terraform/
-          plan_exit_code: ${{ needs.terraform.outputs.plan_exitcode }}
