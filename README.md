@@ -195,7 +195,7 @@ Follow these steps to create the `LothLair-IaC-Terraform` Azure Resource Manager
 Notes and best practices
 	- Do not commit secrets (client secrets, private keys, passwords) to the repository. Use Key Vault or the pipeline's secret variables.
 	- Prefer least-privilege roles for the service principal. Use two service principals if you want more fine-grained separation (one limited to state management, another with broader resource creation rights).
-	- Keep service connection names stable. The pipelines reference `LothLair-IaC-Terraform` explicitly; renaming it requires updating pipeline YAMLs or the parameter value.
+  - Keep service connection names stable. The pipelines reference `LothLair-IaC-Terraform` explicitly; renaming it requires updating pipeline YAMLs or the parameter value.
 
 If you'd like, I can add an example `az` + ADO REST API script to create the service connection programmatically. Want that next?
 
