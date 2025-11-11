@@ -158,10 +158,10 @@ If you'd like, I can add a short ADO setup checklist (steps to create the servic
 Follow these steps to create the `LothLair-IaC-Terraform` Azure Resource Manager service connection and the pipeline variables/variable group used by the included pipelines.
 
 1. Create or obtain a service principal
-	- (CLI) Create a service principal that the pipelines will use:
-	  - Open a machine with Azure CLI and run:
-	    az ad sp create-for-rbac --name "LothLair-IaC-Terraform-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-terraform
-	  - Save the output JSON (it contains appId, password, tenant). This is used for the service connection.
+   - (CLI) Create a service principal that the pipelines will use:
+     - Open a machine with Azure CLI and run:
+       az ad sp create-for-rbac --name "LothLair-IaC-Terraform-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-terraform
+     - Save the output JSON (it contains appId, password, tenant). This is used for the service connection.
 	- Recommended permissions:
 	  - Contributor on the resource group(s) where you create or manage resources (or narrower, as needed).
 	  - Storage Blob Data Contributor (or equivalent) on the storage account used for the Terraform backend if you want to scope down further.
