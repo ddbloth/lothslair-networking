@@ -55,7 +55,7 @@ jobs:
       
       - name: Terraform Plan
         id: plan
-        uses: ddbloth/lothslair-workflow-actions/plan@v1.0
+        uses: ddbloth/lothslair-workflow-actions/plan@main
         with:
           environment: ${{ inputs.environment }}
           working_dir: terraform/
