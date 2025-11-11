@@ -103,7 +103,7 @@ Recommended secret for Azure authentication (when actions need to access Azure)
 
 	az ad sp create-for-rbac --name "LothLair-IaC-GHA-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID> --sdk-auth
 
-	Copy the JSON output and add it to the repository secret named `AZURE_CREDENTIALS` (Actions -> Secrets and variables -> Actions -> New repository secret).
+    Copy the JSON output and add it to the repository secret named `AZURE_CREDENTIALS` (Actions -> Secrets and variables -> Actions -> New repository secret).
 
 Notes about the external actions repository
 
