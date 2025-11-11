@@ -67,12 +67,60 @@ Note: Replace the `-var-file` value with the appropriate environment file or pas
 
 ## CI / GitHub Actions
 
-This repository includes workflows in the `workflow/` directory. These automate common tasks such as:
+This repository contains two sets of pipeline automation in parallel: older Azure DevOps YAMLs under `workflow/` (kept for reference and compatibility) and the newer GitHub Actions workflow(s) used for primary deployments.
 
-- `lothslair-iac-deployment.yml` / destroy counterpart — deploy or tear down stacks for the LothLair environment.
-- Terraform plan/apply flows for both `lothslair` and `lothslair-network` stacks.
+Primary GitHub Actions workflow
 
-Workflows expect secrets and service principals to be configured in the GitHub repository or organization (for example: AZURE_CREDENTIALS or service principal client id/secret/tenant). Review each workflow YAML to see required secrets and how the state backend is set up.
+- Primary workflow (used for GitHub-based deployments): `.github/workflows/infra-deployment.yaml` — this is the canonical, entry-point workflow for repo-based CI/CD.
+- The job steps call custom actions hosted in the separate repository `git@github.com:ddbloth/lothslair-workflow-actions.git` (see `uses: lothslair/lothslair-workflow-actions/*` in the workflow). Ensure that repository is accessible to your organization, and review the external actions' README for additional required inputs/secrets.
+
+Required GitHub Actions secrets and variables
+
+The `infra-deployment.yaml` workflow references the following secrets and conventions. Add these as repository secrets under Settings → Secrets and variables → Actions (or set them at the org level):
+
+- `BACKEND_RG` — the resource group name that contains the Terraform backend storage account (example: `rg-terraform`).
+- `BACKEND_SA` — the name of the storage account used for the Terraform backend (example: `sttfdata13669`).
+- `backend_sa_container` — container is hard-coded to `tfstate` in the workflow; no secret required unless you change it.
+- `backend_sa_key` — the backend key is set per-environment at runtime (`${{ inputs.environment }}.tfstate`) — no secret required for the key but note the naming pattern.
+
+Environment-level backend variables (preferred)
+
+The workflow can read non-secret backend values from GitHub Environment variables (recommended when the values differ between environments but are not sensitive). The workflow file has been updated to use `vars.BACKEND_RG` and `vars.BACKEND_SA` when jobs are scoped to the matching environment.
+
+To add these per-environment variables:
+
+1. In the repository, go to Settings → Environments and open the environment (e.g., `dev`, `staging`, `prod`).
+2. Under that environment, add variables (not secrets) with the exact names:
+  - `BACKEND_RG` = the resource group name for the backend in that environment
+  - `BACKEND_SA` = the storage account name for the backend in that environment
+3. Ensure the jobs that need these variables are configured with `environment: <name>` (the workflow already sets `environment: ${{ inputs.environment }}` for relevant jobs). When a job is associated with an environment, environment-scoped variables are available as `vars.<NAME>` in the workflow.
+
+This pattern keeps resource identifiers configurable per-environment while treating sensitive keys (like the service principal JSON) as repository secrets.
+
+Recommended secret for Azure authentication (when actions need to access Azure)
+
+- `AZURE_CREDENTIALS` — recommended. Create a service principal and add its JSON (SDK-auth format) to this secret so GitHub Actions can authenticate to Azure. Example creation command (replace <SUBSCRIPTION_ID>):
+
+	az ad sp create-for-rbac --name "LothLair-IaC-GHA-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID> --sdk-auth
+
+    Copy the JSON output and add it to the repository secret named `AZURE_CREDENTIALS` (Actions -> Secrets and variables -> Actions -> New repository secret).
+
+Notes about the external actions repository
+
+- The workflow depends heavily on `lothslair/lothslair-workflow-actions` (the `uses:` lines). That repository contains the implementation of setup, init, plan, apply, download, and validate actions used by the workflow. Review that repo's README for any additional secret names or inputs the actions require (for example, some actions may expect a storage account key or Key Vault references).
+- To make reproduction easier, consider adding that actions repo as a submodule or pinning specific action versions/tags in `infra-deployment.yaml`.
+
+Keeping Azure DevOps pipelines
+
+- The `workflow/` Azure DevOps YAML files are kept in this repository for reference and for teams that still use ADO. Current production CI will use the GitHub Actions workflow above; ADO pipelines are maintained as "notes" and legacy support.
+
+Quick checklist to add the GitHub secrets
+
+1. Create the service principal and capture SDK-auth JSON (see example above).
+2. In the GitHub repo, go to Settings → Secrets and variables → Actions → New repository secret.
+3. Add `AZURE_CREDENTIALS` with the JSON value.
+4. Add `BACKEND_RG` and `BACKEND_SA` secrets with the resource group and storage account names used for the Terraform backend.
+5. Confirm the `lothslair-workflow-actions` repo is accessible to the organization and review that repo for any other secret requirements.
 
 ## Required service connections & pipeline variables
 
@@ -104,6 +152,51 @@ Files that reference the `LothLair-IaC-Terraform` connection:
 - `workflow/resources/lothslair-resources-deployment-destroy.yml`
 
 If you'd like, I can add a short ADO setup checklist (steps to create the service connection, set pipeline variables and securely reference Key Vault) to the README — tell me whether you want a full step-by-step or a short checklist.
+
+## Azure DevOps setup checklist (short)
+
+Follow these steps to create the `LothLair-IaC-Terraform` Azure Resource Manager service connection and the pipeline variables/variable group used by the included pipelines.
+
+1. Create or obtain a service principal
+   - (CLI) Create a service principal that the pipelines will use:
+     - Open a machine with Azure CLI and run:
+       az ad sp create-for-rbac --name "LothLair-IaC-Terraform-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-terraform
+     - Save the output JSON (it contains appId, password, tenant). This is used for the service connection.
+	- Recommended permissions:
+	  - Contributor on the resource group(s) where you create or manage resources (or narrower, as needed).
+	  - Storage Blob Data Contributor (or equivalent) on the storage account used for the Terraform backend if you want to scope down further.
+
+2. Create the Azure DevOps service connection
+	- In Azure DevOps go to Project settings → Service connections → New service connection → Azure Resource Manager.
+	- Choose "Service principal (manual)" and paste the `appId` (client id), `password` (client secret) and `tenant` from the `az` command output.
+	- Give the connection the exact name used in the pipelines: `LothLair-IaC-Terraform`.
+	- Optionally restrict the scope to the specific subscription and resource group used for state (`rg-terraform`).
+
+3. Create pipeline variables / variable group for backend values
+	- In Azure DevOps go to Pipelines → Library → + Variable group.
+	- Add variables used by the templates (example names and suggested values):
+	  - `tfStateRGName` = rg-terraform
+	  - `tfStateStorageAccountName` = sttfdata13669
+	  - `tfStateContainerName` = tfstate
+	  - `tfStateKeyName` = per-stack key (e.g., `dev`, `dev-network`, `lothslair-resources`)
+  - Mark any sensitive variables as secret in the variable group (if they contain secrets).
+	- If you use Azure Key Vault: link the Key Vault to the variable group (Use the "Link secrets from an Azure key vault as variables" option) and select the `LothLair-IaC-Terraform` service connection so the pipeline can retrieve secure values at runtime.
+
+4. Update or confirm `params/*.tfvars` files
+	- Ensure the `params/<environment>-ado-variables.tfvars` files exist and do not contain plaintext secrets. If secrets are required by tfvars, store them in Key Vault and reference them in pipelines or variable groups.
+
+5. Validate the pipeline
+	- In the Azure DevOps UI, create a pipeline run (use the YAML in `workflow/`), choose the variable group and service connection, then run the pipeline.
+	- Confirm `terraform init` completes and the backend is initialized (it should use the storage account and container values from the variables). If the run fails with permissions errors, verify the service principal roles and the storage account ACLs.
+
+6. Test destroy/apply flows safely
+	- Use a non-production environment (example `dev`) first. The repository includes both plan/apply and plan/destroy flows — use the destroy YAMLs only when you want to remove infrastructure.
+
+Notes and best practices
+	- Do not commit secrets (client secrets, private keys, passwords) to the repository. Use Key Vault or the pipeline's secret variables.
+	- Prefer least-privilege roles for the service principal. Use two service principals if you want more fine-grained separation (one limited to state management, another with broader resource creation rights).
+  - Keep service connection names stable. The pipelines reference `LothLair-IaC-Terraform` explicitly; renaming it requires updating pipeline YAMLs or the parameter value.
+
 
 ## Scripts
 
