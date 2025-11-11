@@ -160,7 +160,7 @@ Follow these steps to create the `LothLair-IaC-Terraform` Azure Resource Manager
 1. Create or obtain a service principal
 	- (CLI) Create a service principal that the pipelines will use:
 	  - Open a machine with Azure CLI and run:
-		 az ad sp create-for-rbac --name "LothLair-IaC-Terraform-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-terraform
+	    az ad sp create-for-rbac --name "LothLair-IaC-Terraform-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-terraform
 	  - Save the output JSON (it contains appId, password, tenant). This is used for the service connection.
 	- Recommended permissions:
 	  - Contributor on the resource group(s) where you create or manage resources (or narrower, as needed).
