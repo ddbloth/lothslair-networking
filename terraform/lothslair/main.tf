@@ -197,8 +197,8 @@ resource "azurerm_role_assignment" "kv_ado_rbac" {
 resource "azurerm_role_assignment" "kv_admin_rbac" {
   scope                = azurerm_key_vault.keyvault.id
   role_definition_name = "Key Vault Administrator"
-  # Using Azure DevOps group object id (parametrized via variable)
-  principal_id         = data.azuread_group.azure_devops.id
+  # Azure DevOps group object id (no AAD lookup required)
+  principal_id         = var.azure_devops_group_object_id
 }
 
 # Rando Password Generation
