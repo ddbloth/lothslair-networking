@@ -179,7 +179,7 @@ Follow these steps to create the `LothLair-IaC-Terraform` Azure Resource Manager
 	  - `tfStateStorageAccountName` = sttfdata13669
 	  - `tfStateContainerName` = tfstate
 	  - `tfStateKeyName` = per-stack key (e.g., `dev`, `dev-network`, `lothslair-resources`)
-	- Mark any sensitive variables as secret in the variable group (if they contain secrets).
+  - Mark any sensitive variables as secret in the variable group (if they contain secrets).
 	- If you use Azure Key Vault: link the Key Vault to the variable group (Use the "Link secrets from an Azure key vault as variables" option) and select the `LothLair-IaC-Terraform` service connection so the pipeline can retrieve secure values at runtime.
 
 4. Update or confirm `params/*.tfvars` files
