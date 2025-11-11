@@ -5,7 +5,7 @@ on:
     inputs:
       environment:
         type: choice
-        options: [dev, staging, prod]
+        options: [DEV, PRD]
         required: true
 
 permissions:
@@ -18,8 +18,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lothslair/lothslair-workflow-actions/setup@main
-      - uses: lothslair/lothslair-workflow-actions/validate@main
+      # Fallback example for PRIVATE actions repository (commented out):
+      # - name: Checkout private actions repo
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ddbloth/lothslair-workflow-actions
+      #     ref: v1.0
+      #     path: ./.github/actions/lothslair-workflow-actions
+      #     token: ${{ secrets.ACTIONS_READ_TOKEN }} # PAT with repo:read
+      # After checkout, replace remote uses like:
+      #   uses: ddbloth/lothslair-workflow-actions/setup@v1.0
+      # with local path uses:
+      #   uses: ./.github/actions/lothslair-workflow-actions/setup
+      - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
+      - uses: ddbloth/lothslair-workflow-actions/validate@v1.0
         with:
           working_dir: 'terraform/'
 
@@ -29,8 +41,19 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - uses: actions/checkout@v4
-      - uses: lothslair/lothslair-workflow-actions/setup@main
-      - uses: lothslair/lothslair-workflow-actions/init@main
+      # Fallback example for PRIVATE actions repository (commented out):
+      # - name: Checkout private actions repo
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ddbloth/lothslair-workflow-actions
+      #     ref: v1.0
+      #     path: ./.github/actions/lothslair-workflow-actions
+      #     token: ${{ secrets.ACTIONS_READ_TOKEN }} # PAT with repo:read
+      # Then replace remote uses with local path (example):
+      # - uses: ./.github/actions/lothslair-workflow-actions/setup
+      # - uses: ./.github/actions/lothslair-workflow-actions/init
+      - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
+      - uses: ddbloth/lothslair-workflow-actions/init@v1.0
         with:
           # Read backend values from GitHub Environment variables (non-secret, per-environment)
           backend_rg: ${{ vars.BACKEND_RG }}
@@ -47,10 +70,23 @@ jobs:
       exit_code: ${{ steps.plan.outputs.exitcode }}
     steps:
       - uses: actions/checkout@v4
-      - uses: lothslair/lothslair-workflow-actions/setup@main
+      # Fallback example for PRIVATE actions repository (commented out):
+      # - name: Checkout private actions repo
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ddbloth/lothslair-workflow-actions
+      #     ref: v1.0
+      #     path: ./.github/actions/lothslair-workflow-actions
+      #     token: ${{ secrets.ACTIONS_READ_TOKEN }} # PAT with repo:read
+      # Then replace remote uses with local path (example):
+      # - uses: ./.github/actions/lothslair-workflow-actions/setup
+      # - name: Plan
+      #   id: plan
+      #   uses: ./.github/actions/lothslair-workflow-actions/plan
+      - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
       - name: Plan
         id: plan
-        uses: lothslair/lothslair-workflow-actions/plan@main
+        uses: ddbloth/lothslair-workflow-actions/plan@v1.0
         with:
           environment: ${{ inputs.environment }}
           working_dir: terraform/
@@ -63,12 +99,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lothslair/lothslair-workflow-actions/setup@main
-      - uses: lothslair/lothslair-workflow-actions/download@main
+      # Fallback example for PRIVATE actions repository (commented out):
+      # - name: Checkout private actions repo
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ddbloth/lothslair-workflow-actions
+      #     ref: v1.0
+      #     path: ./.github/actions/lothslair-workflow-actions
+      #     token: ${{ secrets.ACTIONS_READ_TOKEN }} # PAT with repo:read
+      # Then replace remote uses with local path (example):
+      # - uses: ./.github/actions/lothslair-workflow-actions/setup
+      # - uses: ./.github/actions/lothslair-workflow-actions/download
+      # - uses: ./.github/actions/lothslair-workflow-actions/apply
+      - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
+      - uses: ddbloth/lothslair-workflow-actions/download@v1.0
         with:
           environment: ${{ inputs.environment }}
           working_dir: terraform/
-      - uses: lothslair/lothslair-workflow-actions/apply@main
+      - uses: ddbloth/lothslair-workflow-actions/apply@v1.0
         with:
           environment: ${{ inputs.environment }}
           working_dir: terraform/

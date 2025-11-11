@@ -15,19 +15,19 @@ The project is organized to separate reusable modules from environment / stack d
 Root files and top-level directories (brief):
 
 - `tfcode/` - Primary Terraform configuration for multiple stacks and environments.
-	- `lothslair/` - Terraform for the main LothLair environment (stack-level code, params, README).
-	- `lothslair-network/` - Terraform for network-focused resources (VNets, DNS zones, network modules, root cert).
-	- `modules/` - Collection of reusable Terraform modules used by stacks (VM images, keyvault, network, databases, etc.).
-	- `resources/` - Additional Terraform resources used across stacks.
+  - `lothslair/` - Terraform for the main LothLair environment (stack-level code, params, README).
+  - `lothslair-network/` - Terraform for network-focused resources (VNets, DNS zones, network modules, root cert).
+  - `modules/` - Collection of reusable Terraform modules used by stacks (VM images, keyvault, network, databases, etc.).
+  - `resources/` - Additional Terraform resources used across stacks.
 
 - `modules/` - Module source code organized by resource type. Many modules are included (VMs, AD/roles, storage, databases, databricks, keyvault, networking, etc.). Use these as building blocks for stack configs.
 
 - `workflow/` - GitHub Actions workflows used to automate Terraform deployments and resource deployments.
-	- `lothslair/` and `lothslair-network/` contain pipeline YAMLs for deploying and destroying infrastructure.
+  - `lothslair/` and `lothslair-network/` contain pipeline YAMLs for deploying and destroying infrastructure.
 
 - `scripts/` - Helper scripts used for local or remote provisioning.
-	- `make-self-signed-cert.ps1` - PowerShell helper to generate a self-signed certificate (Windows).
-	- `vm-agent-install.sh` - Shell script for installing VM agent components on Linux VMs.
+  - `make-self-signed-cert.ps1` - PowerShell helper to generate a self-signed certificate (Windows).
+  - `vm-agent-install.sh` - Shell script for installing VM agent components on Linux VMs.
 
 ## Important files of note
 
@@ -50,8 +50,8 @@ You should also be familiar with Terraform workspaces and how your organization 
 
 1. Clone the repo:
 
-	 git clone <your-repo-url>
-	 cd lothslair-networking
+     git clone <your-repo-url>
+     cd lothslair-networking
 
 2. Inspect the stack you want to work on, for example `tfcode/lothslair-network`.
 
@@ -59,9 +59,9 @@ You should also be familiar with Terraform workspaces and how your organization 
 
 4. Initialize Terraform and plan/apply:
 
-	 terraform init
-	 terraform plan -var-file=params/dev-ado-variables.tfvars
-	 terraform apply -var-file=params/dev-ado-variables.tfvars
+     terraform init
+     terraform plan -var-file=params/dev-ado-variables.tfvars
+     terraform apply -var-file=params/dev-ado-variables.tfvars
 
 Note: Replace the `-var-file` value with the appropriate environment file or pass variables via the environment/CI.
 
@@ -101,7 +101,7 @@ Recommended secret for Azure authentication (when actions need to access Azure)
 
 - `AZURE_CREDENTIALS` — recommended. Create a service principal and add its JSON (SDK-auth format) to this secret so GitHub Actions can authenticate to Azure. Example creation command (replace <SUBSCRIPTION_ID>):
 
-	az ad sp create-for-rbac --name "LothLair-IaC-GHA-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID> --sdk-auth
+    az ad sp create-for-rbac --name "LothLair-IaC-GHA-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID> --sdk-auth
 
     Copy the JSON output and add it to the repository secret named `AZURE_CREDENTIALS` (Actions -> Secrets and variables -> Actions -> New repository secret).
 
@@ -127,13 +127,13 @@ Quick checklist to add the GitHub secrets
 The repository uses Azure DevOps pipeline templates. The pipelines do not embed secret values in source; instead they reference Azure DevOps service connections and pipeline parameters. The key items to configure before running the pipelines are:
 
 - Azure DevOps service connection(s):
-	- `LothLair-IaC-Terraform` — this is the service connection referenced by the included ADO pipelines (`workflow/lothslair/*`, `workflow/lothslair-network/*`, `workflow/resources/*`). Configure this as an Azure Resource Manager service connection that uses a service principal with sufficient permissions (Contributor or a custom role allowing resource and storage account access) on the target subscription and resource group used for state.
+  - `LothLair-IaC-Terraform` — this is the service connection referenced by the included ADO pipelines (`workflow/lothslair/*`, `workflow/lothslair-network/*`, `workflow/resources/*`). Configure this as an Azure Resource Manager service connection that uses a service principal with sufficient permissions (Contributor or a custom role allowing resource and storage account access) on the target subscription and resource group used for state.
 
 - Terraform backend / pipeline variables (passed into pipeline templates):
-	- `tfStateRGName` — resource group that holds the Terraform backend storage account (example value in pipelines: `rg-terraform`).
-	- `tfStateStorageAccountName` — storage account name used for tfstate (example shown: `sttfdata13669`).
-	- `tfStateContainerName` — blob container name used for state (example: `tfstate`).
-	- `tfStateKeyName` — per-stack key name used for the tfstate file (examples: `dev`, `dev-network`, `lothslair-resources`).
+  - `tfStateRGName` — resource group that holds the Terraform backend storage account (example value in pipelines: `rg-terraform`).
+  - `tfStateStorageAccountName` — storage account name used for tfstate (example shown: `sttfdata13669`).
+  - `tfStateContainerName` — blob container name used for state (example: `tfstate`).
+  - `tfStateKeyName` — per-stack key name used for the tfstate file (examples: `dev`, `dev-network`, `lothslair-resources`).
 
 - Parameter files: pipelines pass `-var-file` pointing to files named like `${environment}-ado-variables.tfvars` in each stack `params/` directory. Ensure these files are present (and do not contain committed secrets) or set equivalent pipeline variables/Key Vault references.
 
@@ -162,40 +162,40 @@ Follow these steps to create the `LothLair-IaC-Terraform` Azure Resource Manager
      - Open a machine with Azure CLI and run:
        az ad sp create-for-rbac --name "LothLair-IaC-Terraform-sp" --role Contributor --scopes /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-terraform
      - Save the output JSON (it contains appId, password, tenant). This is used for the service connection.
-	- Recommended permissions:
-	  - Contributor on the resource group(s) where you create or manage resources (or narrower, as needed).
-	  - Storage Blob Data Contributor (or equivalent) on the storage account used for the Terraform backend if you want to scope down further.
+   - Recommended permissions:
+     - Contributor on the resource group(s) where you create or manage resources (or narrower, as needed).
+     - Storage Blob Data Contributor (or equivalent) on the storage account used for the Terraform backend if you want to scope down further.
 
 2. Create the Azure DevOps service connection
-	- In Azure DevOps go to Project settings → Service connections → New service connection → Azure Resource Manager.
-	- Choose "Service principal (manual)" and paste the `appId` (client id), `password` (client secret) and `tenant` from the `az` command output.
-	- Give the connection the exact name used in the pipelines: `LothLair-IaC-Terraform`.
-	- Optionally restrict the scope to the specific subscription and resource group used for state (`rg-terraform`).
+   - In Azure DevOps go to Project settings → Service connections → New service connection → Azure Resource Manager.
+   - Choose "Service principal (manual)" and paste the `appId` (client id), `password` (client secret) and `tenant` from the `az` command output.
+   - Give the connection the exact name used in the pipelines: `LothLair-IaC-Terraform`.
+   - Optionally restrict the scope to the specific subscription and resource group used for state (`rg-terraform`).
 
 3. Create pipeline variables / variable group for backend values
-	- In Azure DevOps go to Pipelines → Library → + Variable group.
-	- Add variables used by the templates (example names and suggested values):
-	  - `tfStateRGName` = rg-terraform
-	  - `tfStateStorageAccountName` = sttfdata13669
-	  - `tfStateContainerName` = tfstate
-	  - `tfStateKeyName` = per-stack key (e.g., `dev`, `dev-network`, `lothslair-resources`)
-  - Mark any sensitive variables as secret in the variable group (if they contain secrets).
-	- If you use Azure Key Vault: link the Key Vault to the variable group (Use the "Link secrets from an Azure key vault as variables" option) and select the `LothLair-IaC-Terraform` service connection so the pipeline can retrieve secure values at runtime.
+   - In Azure DevOps go to Pipelines → Library → + Variable group.
+   - Add variables used by the templates (example names and suggested values):
+     - `tfStateRGName` = rg-terraform
+     - `tfStateStorageAccountName` = sttfdata13669
+     - `tfStateContainerName` = tfstate
+     - `tfStateKeyName` = per-stack key (e.g., `dev`, `dev-network`, `lothslair-resources`)
+   - Mark any sensitive variables as secret in the variable group (if they contain secrets).
+   - If you use Azure Key Vault: link the Key Vault to the variable group (Use the "Link secrets from an Azure key vault as variables" option) and select the `LothLair-IaC-Terraform` service connection so the pipeline can retrieve secure values at runtime.
 
 4. Update or confirm `params/*.tfvars` files
-	- Ensure the `params/<environment>-ado-variables.tfvars` files exist and do not contain plaintext secrets. If secrets are required by tfvars, store them in Key Vault and reference them in pipelines or variable groups.
+   - Ensure the `params/<environment>-ado-variables.tfvars` files exist and do not contain plaintext secrets. If secrets are required by tfvars, store them in Key Vault and reference them in pipelines or variable groups.
 
 5. Validate the pipeline
-	- In the Azure DevOps UI, create a pipeline run (use the YAML in `workflow/`), choose the variable group and service connection, then run the pipeline.
-	- Confirm `terraform init` completes and the backend is initialized (it should use the storage account and container values from the variables). If the run fails with permissions errors, verify the service principal roles and the storage account ACLs.
+   - In the Azure DevOps UI, create a pipeline run (use the YAML in `workflow/`), choose the variable group and service connection, then run the pipeline.
+   - Confirm `terraform init` completes and the backend is initialized (it should use the storage account and container values from the variables). If the run fails with permissions errors, verify the service principal roles and the storage account ACLs.
 
 6. Test destroy/apply flows safely
-	- Use a non-production environment (example `dev`) first. The repository includes both plan/apply and plan/destroy flows — use the destroy YAMLs only when you want to remove infrastructure.
+   - Use a non-production environment (example `dev`) first. The repository includes both plan/apply and plan/destroy flows — use the destroy YAMLs only when you want to remove infrastructure.
 
 Notes and best practices
-	- Do not commit secrets (client secrets, private keys, passwords) to the repository. Use Key Vault or the pipeline's secret variables.
-	- Prefer least-privilege roles for the service principal. Use two service principals if you want more fine-grained separation (one limited to state management, another with broader resource creation rights).
-  - Keep service connection names stable. The pipelines reference `LothLair-IaC-Terraform` explicitly; renaming it requires updating pipeline YAMLs or the parameter value.
+   - Do not commit secrets (client secrets, private keys, passwords) to the repository. Use Key Vault or the pipeline's secret variables.
+   - Prefer least-privilege roles for the service principal. Use two service principals if you want more fine-grained separation (one limited to state management, another with broader resource creation rights).
+   - Keep service connection names stable. The pipelines reference `LothLair-IaC-Terraform` explicitly; renaming it requires updating pipeline YAMLs or the parameter value.
 
 
 ## Scripts
