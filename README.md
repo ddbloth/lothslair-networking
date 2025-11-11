@@ -122,11 +122,6 @@ Quick checklist to add the GitHub secrets
 4. Add `BACKEND_RG` and `BACKEND_SA` secrets with the resource group and storage account names used for the Terraform backend.
 5. Confirm the `lothslair-workflow-actions` repo is accessible to the organization and review that repo for any other secret requirements.
 
-If you want I can also:
-
-- Scan the `lothslair-workflow-actions` repository for required inputs/secrets and produce a complete list to add to this README.
-- Add a small example GitHub Actions workflow snippet that shows pinning the actions and demonstrating how to set the `AZURE_CREDENTIALS` secret before running.
-
 ## Required service connections & pipeline variables
 
 The repository uses Azure DevOps pipeline templates. The pipelines do not embed secret values in source; instead they reference Azure DevOps service connections and pipeline parameters. The key items to configure before running the pipelines are:
