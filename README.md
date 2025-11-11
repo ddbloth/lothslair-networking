@@ -91,8 +91,8 @@ To add these per-environment variables:
 
 1. In the repository, go to Settings → Environments and open the environment (e.g., `dev`, `staging`, `prod`).
 2. Under that environment, add variables (not secrets) with the exact names:
-	- `BACKEND_RG` = the resource group name for the backend in that environment
-	- `BACKEND_SA` = the storage account name for the backend in that environment
+  - `BACKEND_RG` = the resource group name for the backend in that environment
+  - `BACKEND_SA` = the storage account name for the backend in that environment
 3. Ensure the jobs that need these variables are configured with `environment: <name>` (the workflow already sets `environment: ${{ inputs.environment }}` for relevant jobs). When a job is associated with an environment, environment-scoped variables are available as `vars.<NAME>` in the workflow.
 
 This pattern keeps resource identifiers configurable per-environment while treating sensitive keys (like the service principal JSON) as repository secrets.
