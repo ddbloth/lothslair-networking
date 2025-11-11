@@ -21,6 +21,12 @@ jobs:
       plan_exitcode: ${{ steps.plan.outputs.exitcode }}
     steps:
       - uses: actions/checkout@v4
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       # Fallback example for PRIVATE actions repository (commented out):
       # - name: Checkout private actions repo
       #   uses: actions/checkout@v4
@@ -68,6 +74,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
       # Fallback example for PRIVATE actions repository (commented out):
       # - name: Checkout private actions repo
       #   uses: actions/checkout@v4
