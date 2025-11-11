@@ -14,9 +14,11 @@ permissions:
   issues: write
 
 jobs:
-  init:
+  terraform:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    outputs:
+      plan_exitcode: ${{ steps.plan.outputs.exitcode }}
     steps:
       - uses: actions/checkout@v4
       # Fallback example for PRIVATE actions repository (commented out):
@@ -30,62 +32,28 @@ jobs:
       # Then replace remote uses with local path (example):
       # - uses: ./.github/actions/lothslair-workflow-actions/setup
       # - uses: ./.github/actions/lothslair-workflow-actions/init
-      - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
-      - uses: ddbloth/lothslair-workflow-actions/init@v1.0
+      # - uses: ./.github/actions/lothslair-workflow-actions/validate
+      # - uses: ./.github/actions/lothslair-workflow-actions/plan
+      
+      - name: Setup Terraform
+        uses: ddbloth/lothslair-workflow-actions/setup@v1.0
+      
+      - name: Terraform Init
+        uses: ddbloth/lothslair-workflow-actions/init@v1.0
         with:
           # Read backend values from GitHub Environment variables (non-secret, per-environment)
           backend_rg: ${{ vars.BACKEND_RG }}
           backend_sa: ${{ vars.BACKEND_SA }}
           backend_sa_container: tfstate
           backend_sa_key: ${{ inputs.environment }}.tfstate
-          working_dir: terraform/
-
-  validate:
-    needs: init
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    steps:
-      - uses: actions/checkout@v4
-      # Fallback example for PRIVATE actions repository (commented out):
-      # - name: Checkout private actions repo
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ddbloth/lothslair-workflow-actions
-      #     ref: v1.0
-      #     path: ./.github/actions/lothslair-workflow-actions
-      #     token: ${{ secrets.ACTIONS_READ_TOKEN }} # PAT with repo:read
-      # After checkout, replace remote uses like:
-      #   uses: ddbloth/lothslair-workflow-actions/setup@v1.0
-      # with local path uses:
-      #   uses: ./.github/actions/lothslair-workflow-actions/setup
-      - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
-      - uses: ddbloth/lothslair-workflow-actions/validate@v1.0
+          working_dir: 'terraform/lothslair-network'
+      
+      - name: Terraform Validate
+        uses: ddbloth/lothslair-workflow-actions/validate@v1.0
         with:
           working_dir: 'terraform/lothslair-network'
-
-  plan:
-    needs: validate
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    outputs:
-      exit_code: ${{ steps.plan.outputs.exitcode }}
-    steps:
-      - uses: actions/checkout@v4
-      # Fallback example for PRIVATE actions repository (commented out):
-      # - name: Checkout private actions repo
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ddbloth/lothslair-workflow-actions
-      #     ref: v1.0
-      #     path: ./.github/actions/lothslair-workflow-actions
-      #     token: ${{ secrets.ACTIONS_READ_TOKEN }} # PAT with repo:read
-      # Then replace remote uses with local path (example):
-      # - uses: ./.github/actions/lothslair-workflow-actions/setup
-      # - name: Plan
-      #   id: plan
-      #   uses: ./.github/actions/lothslair-workflow-actions/plan
-      - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
-      - name: Plan
+      
+      - name: Terraform Plan
         id: plan
         uses: ddbloth/lothslair-workflow-actions/plan@v1.0
         with:
@@ -94,8 +62,8 @@ jobs:
           params_dir: terraform/environments
 
   apply:
-    needs: plan
-    if: needs.plan.outputs.exit_code == 2
+    needs: terraform
+    if: needs.terraform.outputs.plan_exitcode == 2
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
@@ -121,4 +89,4 @@ jobs:
         with:
           environment: ${{ inputs.environment }}
           working_dir: terraform/
-          plan_exit_code: ${{ needs.plan.outputs.exit_code }}
+          plan_exit_code: ${{ needs.terraform.outputs.plan_exitcode }}
