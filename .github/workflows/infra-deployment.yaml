@@ -1,0 +1,75 @@
+name: Deploy Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [dev, staging, prod]
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lothslair/lothslair-workflow-actions/setup@main
+      - uses: lothslair/lothslair-workflow-actions/validate@main
+        with:
+          working_dir: 'terraform/'
+
+  init:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lothslair/lothslair-workflow-actions/setup@main
+      - uses: lothslair/lothslair-workflow-actions/init@main
+        with:
+          # Read backend values from GitHub Environment variables (non-secret, per-environment)
+          backend_rg: ${{ vars.BACKEND_RG }}
+          backend_sa: ${{ vars.BACKEND_SA }}
+          backend_sa_container: tfstate
+          backend_sa_key: ${{ inputs.environment }}.tfstate
+          working_dir: terraform/
+
+  plan:
+    needs: init
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      exit_code: ${{ steps.plan.outputs.exitcode }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lothslair/lothslair-workflow-actions/setup@main
+      - name: Plan
+        id: plan
+        uses: lothslair/lothslair-workflow-actions/plan@main
+        with:
+          environment: ${{ inputs.environment }}
+          working_dir: terraform/
+          params_dir: terraform/environments
+
+  apply:
+    needs: plan
+    if: needs.plan.outputs.exit_code == 2
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lothslair/lothslair-workflow-actions/setup@main
+      - uses: lothslair/lothslair-workflow-actions/download@main
+        with:
+          environment: ${{ inputs.environment }}
+          working_dir: terraform/
+      - uses: lothslair/lothslair-workflow-actions/apply@main
+        with:
+          environment: ${{ inputs.environment }}
+          working_dir: terraform/
+          plan_exit_code: ${{ needs.plan.outputs.exit_code }}
