@@ -14,29 +14,7 @@ permissions:
   issues: write
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      # Fallback example for PRIVATE actions repository (commented out):
-      # - name: Checkout private actions repo
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ddbloth/lothslair-workflow-actions
-      #     ref: v1.0
-      #     path: ./.github/actions/lothslair-workflow-actions
-      #     token: ${{ secrets.ACTIONS_READ_TOKEN }} # PAT with repo:read
-      # After checkout, replace remote uses like:
-      #   uses: ddbloth/lothslair-workflow-actions/setup@v1.0
-      # with local path uses:
-      #   uses: ./.github/actions/lothslair-workflow-actions/setup
-      - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
-      - uses: ddbloth/lothslair-workflow-actions/validate@v1.0
-        with:
-          working_dir: 'terraform/lothslair-network'
-
   init:
-    needs: validate
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
@@ -62,8 +40,31 @@ jobs:
           backend_sa_key: ${{ inputs.environment }}.tfstate
           working_dir: terraform/
 
-  plan:
+  validate:
     needs: init
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      # Fallback example for PRIVATE actions repository (commented out):
+      # - name: Checkout private actions repo
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ddbloth/lothslair-workflow-actions
+      #     ref: v1.0
+      #     path: ./.github/actions/lothslair-workflow-actions
+      #     token: ${{ secrets.ACTIONS_READ_TOKEN }} # PAT with repo:read
+      # After checkout, replace remote uses like:
+      #   uses: ddbloth/lothslair-workflow-actions/setup@v1.0
+      # with local path uses:
+      #   uses: ./.github/actions/lothslair-workflow-actions/setup
+      - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
+      - uses: ddbloth/lothslair-workflow-actions/validate@v1.0
+        with:
+          working_dir: 'terraform/lothslair-network'
+
+  plan:
+    needs: validate
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     outputs:
