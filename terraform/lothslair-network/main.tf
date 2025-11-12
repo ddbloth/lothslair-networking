@@ -49,7 +49,7 @@ resource "azurerm_key_vault" "kv_lothslair" {
   resource_group_name             = azurerm_resource_group.networking_rg.name
   tenant_id                       = data.azurerm_client_config.current.tenant_id
   sku_name                        = "standard"
-  enable_rbac_authorization       = true
+  rbac_authorization_enabled       = true
   enabled_for_deployment          = true
   enabled_for_disk_encryption     = true
   enabled_for_template_deployment = true
