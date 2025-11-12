@@ -101,18 +101,37 @@ jobs:
           if [ -z "$PLAN_PATH" ]; then
             PLAN_PATH=$(find . -type f -name "*.tfplan" -print -quit || true)
           fi
+          # Locate lock file near the plan or in repo root
+          LOCK_PATH=""
+          if [ -n "$PLAN_PATH" ]; then
+            PLAN_DIR=$(dirname "$PLAN_PATH")
+            LOCK_PATH=$(find "$PLAN_DIR" -maxdepth 1 -type f -name ".terraform.lock.hcl" -print -quit || true)
+          fi
+          if [ -z "$LOCK_PATH" ]; then
+            LOCK_PATH=$(find . -maxdepth 2 -type f -name ".terraform.lock.hcl" -print -quit || true)
+          fi
+          # If still not found, create a stub lock so apply always has a file pair
+          if [ -z "$LOCK_PATH" ]; then
+            LOCK_PATH="$RUNNER_TEMP/.terraform.lock.hcl"
+            mkdir -p "$(dirname "$LOCK_PATH")"
+            touch "$LOCK_PATH"
+          fi
           echo "plan=$PLAN_PATH" >> $GITHUB_OUTPUT
+          echo "lock=$LOCK_PATH" >> $GITHUB_OUTPUT
           if [ -z "$PLAN_PATH" ]; then
             echo "No tfplan found to upload"
           else
             echo "Found plan at: $PLAN_PATH"
+            echo "Found lock at: $LOCK_PATH"
           fi
       - name: Upload tfplan artifact
         if: steps.find-plan.outputs.plan != ''
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.environment }}-tfPlan
-          path: ${{ steps.find-plan.outputs.plan }}
+          path: |
+            ${{ steps.find-plan.outputs.plan }}
+            ${{ steps.find-plan.outputs.lock }}
 
   apply:
     needs: terraform
