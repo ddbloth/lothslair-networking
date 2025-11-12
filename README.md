@@ -1,3 +1,5 @@
+[![Deploy Network Infrastructure](https://github.com/ddbloth/lothslair-networking/actions/workflows/001-infra-networking-deployment.yaml/badge.svg)](https://github.com/ddbloth/lothslair-networking/actions/workflows/001-infra-networking-deployment.yaml)
+
 # LothLair - Networking Terraform & Deployment
 
 This repository contains Terraform code, reusable modules, scripts, and CI workflows used to provision and manage the LothLair Azure networking and related infrastructure.

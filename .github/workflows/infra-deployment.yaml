@@ -82,6 +82,36 @@ jobs:
           environment: ${{ inputs.environment }}
           working_dir: terraform/
           params_dir: terraform/environments
+      - name: Locate TF plan file
+        id: find-plan
+        run: |
+          set -euo pipefail
+          SEARCH_DIR=terraform
+          PLAN_PATH=""
+          if [ -d "$SEARCH_DIR" ]; then
+            PLAN_PATH=$(find "$SEARCH_DIR" -maxdepth 3 -type f -name "${{ inputs.environment }}.tfplan" -print -quit || true)
+          fi
+          if [ -z "$PLAN_PATH" ]; then
+            PLAN_PATH=$(find . -type f -name "${{ inputs.environment }}.tfplan" -print -quit || true)
+          fi
+          if [ -z "$PLAN_PATH" ]; then
+            PLAN_PATH=$(find "$SEARCH_DIR" -maxdepth 3 -type f -name "*.tfplan" -print -quit || true)
+          fi
+          if [ -z "$PLAN_PATH" ]; then
+            PLAN_PATH=$(find . -type f -name "*.tfplan" -print -quit || true)
+          fi
+          echo "plan=$PLAN_PATH" >> $GITHUB_OUTPUT
+          if [ -z "$PLAN_PATH" ]; then
+            echo "No tfplan found to upload"
+          else
+            echo "Found plan at: $PLAN_PATH"
+          fi
+      - name: Upload tfplan artifact
+        if: steps.find-plan.outputs.plan != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.environment }}-tfPlan
+          path: ${{ steps.find-plan.outputs.plan }}
 
   apply:
     needs: terraform
@@ -114,10 +144,11 @@ jobs:
       # - uses: ./.github/actions/lothslair-workflow-actions/download
       # - uses: ./.github/actions/lothslair-workflow-actions/apply
       - uses: ddbloth/lothslair-workflow-actions/setup@v1.0
-      - uses: ddbloth/lothslair-workflow-actions/download@v1.0
+      - name: Download plan artifact
+        uses: actions/download-artifact@v4
         with:
-          environment: ${{ inputs.environment }}
-          working_dir: terraform/
+          name: ${{ inputs.environment }}-tfPlan
+          path: terraform/
       - uses: ddbloth/lothslair-workflow-actions/apply@v1.0
         with:
           environment: ${{ inputs.environment }}
