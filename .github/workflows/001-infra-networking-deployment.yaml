@@ -7,6 +7,11 @@ on:
         type: choice
         options: [DEV, PRD]
         required: true
+      debug:
+        description: 'Optional: run an az account show check after login (true/false)'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -27,6 +32,17 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Export ARM env vars for azurerm provider
+        run: |
+          echo "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
+          echo "ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
+      - name: "Optional: check az account context"
+        if: ${{ inputs.debug }}
+        run: |
+          set -euo pipefail
+          echo "Checking az account context (masked)"
+          az account show --subscription "$ARM_SUBSCRIPTION_ID" >/dev/null 2>&1 && echo "AZ_ACCOUNT_OK=1" || echo "AZ_ACCOUNT_OK=0"
       # Fallback example for PRIVATE actions repository (commented out):
       # - name: Checkout private actions repo
       #   uses: actions/checkout@v4
@@ -80,6 +96,11 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Export ARM env vars for azurerm provider
+        run: |
+          echo "ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
+          echo "ARM_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
       # Fallback example for PRIVATE actions repository (commented out):
       # - name: Checkout private actions repo
       #   uses: actions/checkout@v4
