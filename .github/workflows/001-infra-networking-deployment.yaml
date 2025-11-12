@@ -169,6 +169,23 @@ jobs:
         with:
           name: ${{ inputs.environment }}-tfPlan
           path: terraform/lothslair-network
+      - name: Verify plan and lockfile
+        run: |
+          set -euo pipefail
+          WORKDIR=terraform/lothslair-network
+          echo "Checking for plan and lockfile in $WORKDIR"
+          if [ ! -d "$WORKDIR" ]; then
+            echo "Working dir $WORKDIR missing"; ls -la || true; exit 1
+          fi
+          PLAN_FILE="$WORKDIR/${{ inputs.environment }}.tfplan"
+          if [ ! -f "$PLAN_FILE" ]; then
+            echo "Plan file not found: $PLAN_FILE"; ls -la "$WORKDIR"; exit 1
+          fi
+          LOCK_FILE="$WORKDIR/.terraform.lock.hcl"
+          if [ ! -f "$LOCK_FILE" ]; then
+            echo "Lock file not found: $LOCK_FILE"; ls -la "$WORKDIR"; exit 1
+          fi
+          echo "Found plan and lockfile"
       - uses: ddbloth/lothslair-workflow-actions/apply@v1.0
         with:
           environment: ${{ inputs.environment }}
